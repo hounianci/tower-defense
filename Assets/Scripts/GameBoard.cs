@@ -340,10 +340,10 @@ public class GameBoard : MonoBehaviour {
         return tiles[y][x];
     }
 
-	public List<GameTile> FindEnemyPath(int[] start, int[][] mainTile){
+	public List<GameTile> FindEnemyPath(int[] start, List<int[]> mainTile){
 		List<GameTile> path = new List<GameTile>();
 		GameTile startTile = GetGameTile(start[0], start[1]);
-		for(int i=0; i<mainTile.Length; i++){
+		for(int i=0; i<mainTile.Count; i++){
 			GameTile endTile = GetGameTile(mainTile[i][0], mainTile[i][1]);
 			path.AddRange(GenericDestinationPath(startTile, endTile));
 			startTile = endTile;

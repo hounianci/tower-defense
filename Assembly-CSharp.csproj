@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\Scenario\EnemyWave.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyType.cs" />
      <Compile Include="Assets\Scripts\Towers\TowerType.cs" />
+     <Compile Include="Assets\Scripts\Utils\FileUtil.cs" />
      <Compile Include="Assets\Scripts\FloatRangeSliderAttribute.cs" />
      <Compile Include="Assets\Scripts\Towers\Tower.cs" />
      <Compile Include="Assets\Scripts\GameTile.cs" />
@@ -66,7 +67,6 @@
      <Compile Include="Assets\Scripts\GameObjectFactory.cs" />
      <Compile Include="Assets\Scripts\GameTileContentFactory.cs" />
      <Compile Include="Assets\Scripts\War\Explosion.cs" />
-     <Compile Include="Assets\Scripts\Utils\FileUtil.cs" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\Alien.shader" />
      <None Include="Assets\TargetRange\3.txt" />
      <None Include="Assets\TargetRange\1.txt" />
@@ -74,6 +74,7 @@
      <None Include="Assets\Shader\RangeShader.shader" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\EyeBallsHD.shader" />
      <None Include="Assets\3D Game Kit - Character Pack\Characters\Spitter\AnimationClips\animations.txt" />
+     <None Include="Assets\Path\1Path.txt" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\EnergyCore.shader" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\SculptedHair.shader" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\ToonSkin.shader" />

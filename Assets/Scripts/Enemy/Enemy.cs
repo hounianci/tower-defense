@@ -34,7 +34,26 @@ public class Enemy : GameBehavior {
 	float pathOffset;
 	float speed;
 
+	GameBoard board;
+	public GameBoard Board{
+		get=>board;
+		set{board=value;}
+	}
+
 	private Tower blockingTower;
+
+	public void InitPath(){
+		string pathPointsStr = FileUtil.readFile(string.Format("Assets/Path/{0}Path.txt", id));
+		string[] pathPoints = pathPointsStr.Split('|');
+		List<int[]> mainPoints = new List<int[]>();
+		foreach(string pathPointStr in pathPoints){
+			string[] points = pathPointStr.Split(',');
+			int x = int.Parse(points[1]);
+			int y = int.Parse(points[0]);
+			mainPoints.Add(new int[]{y, x});
+		}
+		path = board.FindEnemyPath(new int[]{tileFrom.Y, tileFrom.X}, mainPoints);
+	}
 
 	public Tower BlockingTower{
 		get => blockingTower;

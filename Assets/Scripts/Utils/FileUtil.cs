@@ -25,6 +25,19 @@ public class FileUtil
         // return matrixTurnRight(matrix);
         return matrixTurnAround(matrix);
     }
+    public static string readFile(string path){
+        string s = "";
+        using (StreamReader sr = new StreamReader(path))
+        {
+            string line;
+            // 从文件读取并显示行，直到文件的末尾 
+            while ((line = sr.ReadLine()) != null)
+            {
+                s += line;
+            }
+        }
+        return s;
+    }
 
     public static List<List<int>> matrixTurnRight(List<List<int>> matrix){
         List<List<int>> matrixTmp = new List<List<int>>();

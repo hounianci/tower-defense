@@ -63,7 +63,9 @@ public class Game : MonoBehaviour {
             UnityEngine.Random.Range(0, instance.board.SpawnPointCount)
 		);
 		Enemy enemy = factory.Get(type);
+		enemy.Board = instance.Board;
 		enemy.SpawnOn(spawnPoint);
+		enemy.InitPath();
 		instance.enemies.Add(enemy);
 	}
 
