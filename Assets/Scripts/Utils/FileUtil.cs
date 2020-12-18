@@ -23,7 +23,7 @@ public class FileUtil
             }
         }
         // return matrixTurnRight(matrix);
-        return matrixTurnAround2 matrix;
+        return matrixTurnAround(matrix);
     }
 
     public static List<List<int>> matrixTurnRight(List<List<int>> matrix){
@@ -50,6 +50,7 @@ public class FileUtil
         }
         return matrixTmp;
     }
+    //水平旋转
     public static List<List<int>> matrixTurnAround(List<List<int>> matrix){
         List<List<int>> matrixTmp = new List<List<int>>();
         for(int i=0; i<matrix.Count; i++){
@@ -62,6 +63,7 @@ public class FileUtil
         }
         return matrixTmp;
     }
+    //垂直旋转
     public static List<List<int>> matrixTurnAround2(List<List<int>> matrix){
         List<List<int>> matrixTmp = new List<List<int>>();
         for(int i=0; i<matrix.Count; i++){
