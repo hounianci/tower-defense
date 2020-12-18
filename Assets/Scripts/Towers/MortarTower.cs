@@ -20,15 +20,10 @@ public class MortarTower : Tower {
 
 	float launchProgress;
 
-	void Awake () {
-		OnValidate();
-	}
-
-	void OnValidate () {
-		float x = targetingRange + 0.25001f;
-		float y = -mortar.position.y;
-		launchSpeed = Mathf.Sqrt(9.81f * (y + Mathf.Sqrt(x * x + y * y)));
-	}
+    protected override void init0()
+    {
+		base.init0();
+    }
 
 	public override void GameUpdate () {
 		launchProgress += shotsPerSecond * Time.deltaTime;

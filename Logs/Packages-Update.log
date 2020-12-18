@@ -17,3 +17,13 @@ The following packages were added:
   com.unity.xr.legacyinputhelpers@2.1.4
 The following packages were removed:
   com.unity.package-manager-ui@2.0.7
+
+=== Mon Dec  7 11:18:33 2020
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were added:
+  com.unity.ide.visualstudio@2.0.2
+The following packages were updated:
+  com.unity.ide.rider from version 1.1.4 to 1.2.1

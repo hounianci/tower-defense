@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class Enemy : GameBehavior {
 
@@ -8,9 +9,23 @@ public class Enemy : GameBehavior {
 	[SerializeField]
 	Transform model = default;
 
+	
+	[SerializeField]
+	int id;
+
 	EnemyFactory originFactory;
 
+	List<GameTile> path = new List<GameTile>();
+
+	public List<GameTile> Path{
+		get=>path;
+		set{path=value;}
+	}
+
 	GameTile tileFrom, tileTo;
+	public GameTile TileFrom{
+		get=>tileFrom;
+	}
 	Vector3 positionFrom, positionTo;
 	Direction direction;
 	DirectionChange directionChange;
@@ -20,16 +35,24 @@ public class Enemy : GameBehavior {
 	float speed;
 
 	private Tower blockingTower;
+
 	public Tower BlockingTower{
 		get => blockingTower;
 		set{
 			blockingTower = value;
 		}
 	}
-
+	public int Id{
+		get => id;
+	}
 	EnemyAnimator animator;
 
 	Collider targetPointCollider;
+	private TargetPoint targetPoint;
+	public TargetPoint TargetPoint{
+		get=>targetPoint;
+		set{targetPoint=value;}
+	}
 
 	public Collider TargetPointCollider {
 		set {
@@ -68,7 +91,6 @@ public class Enemy : GameBehavior {
 		}
 #endif
 		animator.GameUpdate();
-
 		//出生
 		if (animator.CurrentClip == EnemyAnimator.Clip.Intro) {
 			if (!animator.IsDone) {
@@ -93,23 +115,27 @@ public class Enemy : GameBehavior {
 			targetPointCollider.enabled = false;
 			return true;
 		}
-
-		//被阻挡
-		if(blockingTower!=null){
-			return true;
-		}
-
 		progress += Time.deltaTime * progressFactor;
-		while (progress >= 1f) {
+		if(progress >= 1){
 			if (tileTo == null) {
 				Game.EnemyReachedDestination();
 				animator.PlayOutro();
 				targetPointCollider.enabled = false;
 				return true;
 			}
-			progress = (progress - 1f) / progressFactor;
-			PrepareNextState();
-			progress *= progressFactor;
+			if(blockingTower==null){
+				progress = (progress - 1f) / progressFactor;
+				PrepareNextState();
+				progress *= progressFactor;
+			}else{
+				//被阻挡
+				progress = Mathf.Min(1, progress);
+			}
+		}
+		if(blockingTower!=null){
+			if(blockingTower==tileFrom.Content){
+				return true;
+			}
 		}
 		if (directionChange == DirectionChange.None) {
 			transform.localPosition =
@@ -156,7 +182,9 @@ public class Enemy : GameBehavior {
 	}
 
 	void PrepareNextState () {
+		tileFrom.Content.Enemies.Remove(this);
 		tileFrom = tileTo;
+		tileFrom.Content.Enemies.Add(this);
 		tileTo = tileTo.NextTileOnPath;
 		positionFrom = positionTo;
 		if (tileTo == null) {

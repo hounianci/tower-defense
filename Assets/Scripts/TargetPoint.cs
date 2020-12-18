@@ -39,5 +39,6 @@ public class TargetPoint : MonoBehaviour {
 		);
 		Debug.Assert(gameObject.layer == 9, "Target point on wrong layer!", this);
 		Enemy.TargetPointCollider = GetComponent<Collider>();
+		Enemy.TargetPoint = this;
 	}
 }

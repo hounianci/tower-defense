@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Game : MonoBehaviour {
 
@@ -12,6 +13,10 @@ public class Game : MonoBehaviour {
 
 	[SerializeField]
 	GameBoard board = default;
+
+	public GameBoard Board{
+		get => board;
+	}
 
 	[SerializeField]
 	GameTileContentFactory tileContentFactory = default;
@@ -44,6 +49,10 @@ public class Game : MonoBehaviour {
 	Ray TouchRay => Camera.main.ScreenPointToRay(Input.mousePosition);
 
 	static Game instance;
+
+	public static Game Instance{
+		get => instance;
+	}
 
 	public static void EnemyReachedDestination () {
 		instance.playerHealth -= 1;
@@ -100,6 +109,7 @@ public class Game : MonoBehaviour {
             board.ToggleWall(tile);
         }
         board.ShowGrid = true;
+		board.GenericDestinationPath(board.GetGameTile(0,0), board.GetGameTile(2, 0));
         activeScenario = scenario.Begin();
     }
 
@@ -131,6 +141,18 @@ public class Game : MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.G)) {
 			board.ShowGrid = !board.ShowGrid;
+		}
+		if (Input.GetKeyDown(KeyCode.W)) {
+			board.selectingTowerChangeDirection(Direction.North);
+		}
+		if (Input.GetKeyDown(KeyCode.A)) {
+			board.selectingTowerChangeDirection(Direction.West);
+		}
+		if (Input.GetKeyDown(KeyCode.S)) {
+			board.selectingTowerChangeDirection(Direction.South);
+		}
+		if (Input.GetKeyDown(KeyCode.D)) {
+			board.selectingTowerChangeDirection(Direction.East);
 		}
 
 		if (Input.GetKeyDown(KeyCode.Alpha1)) {
@@ -189,6 +211,8 @@ public class Game : MonoBehaviour {
 		if (tile != null) {
 			if (Input.GetKey(KeyCode.LeftShift)) {
 				board.ToggleTower(tile, selectedTowerType);
+			}else if(Input.GetKey(KeyCode.LeftAlt)){
+				board.SelectingTower = (Tower)tile.Content;
 			}
 			else {
 				board.ToggleWall(tile);
@@ -198,36 +222,25 @@ public class Game : MonoBehaviour {
 
     void ReadFile()
     {
-        int row = 0;
-        int maxCol = 0;
-        using (StreamReader sr = new StreamReader("1.txt"))
-        {
-            string line;
-            // 从文件读取并显示行，直到文件的末尾 
-            while ((line = sr.ReadLine()) != null)
-            {
-                int col = 0;
-                String[] cells = line.Trim().Split(',');
-                for (int i=0; i<cells.Length; i++)
-                {
-                    if (cells[i]=="1")
-                    {
-                        initWall.Add(new Vector2Int(row, i));
-                    }else if (cells[i]=="2")
-                    {
-                        initSpwan.Add(new Vector2Int(row, i));
-                    }
-                    else if (cells[i] == "3")
-                    {
-                        initDestination.Add(new Vector2Int(row, i));
-                    }
-                   col++;
-                }
-                row++;
-                maxCol = col > maxCol ? col : maxCol;
-            }
-        }
-        boardSize = new Vector2Int(row, maxCol);
+		List<List<int>> matrix = FileUtil.readFileMatrix("1.txt");
+	 	for(int row=0; row<matrix.Count;row++){	
+			List<int> rowContent = matrix[row];
+			for(int col=0; col<rowContent.Count; col++){
+				int colContent = rowContent[col];
+				switch (colContent){
+					case 1:
+						initWall.Add(new Vector2Int(col, row));
+					break;
+					case 2:
+                        initSpwan.Add(new Vector2Int(col, row));
+					break;
+					case 3:
+                        initDestination.Add(new Vector2Int(col, row));
+					break;
+				}
+			}
+		}
+        boardSize = new Vector2Int(matrix.Count, matrix[0].Count);
     }
 
 }

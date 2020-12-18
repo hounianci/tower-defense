@@ -1,16 +1,38 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 public class GameTile : MonoBehaviour {
 
 	[SerializeField]
 	Transform arrow = default;
-
-	List<Enemy> enemys = new List<Enemy>();
+	[SerializeField]
+	Transform inRange = default;
 
 	GameTile north, east, south, west, nextOnPath;
 
+	public GameTile North{
+		get => north;
+	}
+	public GameTile South{
+		get => south;
+	}
+	public GameTile East{
+		get => east;
+	}
+	public GameTile West{
+		get => west;
+	}
+
 	int distance;
+	int x, y; 
+
+	public int X{
+		get => x;
+		set {x = value;}
+	}
+	public int Y{
+		get => y;
+		set {y = value;}
+	}
 
 	GameTileContent content;
 
@@ -84,6 +106,15 @@ public class GameTile : MonoBehaviour {
 			nextOnPath == east ? eastRotation :
 			nextOnPath == south ? southRotation :
 			westRotation;
+	}
+
+	public void ShowInRange(){
+		HidePath();
+		inRange.gameObject.SetActive(true);
+	}
+
+	public void HideInRange(){
+		inRange.gameObject.SetActive(false);
 	}
 
 	static Quaternion

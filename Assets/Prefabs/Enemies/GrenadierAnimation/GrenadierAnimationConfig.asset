@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1bd765518cf945db9eb080b2f2dd074, type: 3}
+  m_Name: GrenadierAnimationConfig
+  m_EditorClassIdentifier: 
+  moveAnimationSpeed: 2
+  move: {fileID: 1827226128182048838, guid: 2a0a89416456b054a9a0a700f5765c53, type: 3}
+  intro: {fileID: 1827226128182048838, guid: 90cf302c42e6b4942a108ce175f84ee6, type: 3}
+  outro: {fileID: 1827226128182048838, guid: 90cf302c42e6b4942a108ce175f84ee6, type: 3}
+  dying: {fileID: 1827226128182048838, guid: 657a2f240a57feb4095316a990c7ba16, type: 3}
+  appear: {fileID: 1827226128182048838, guid: 2a0a89416456b054a9a0a700f5765c53, type: 3}
+  disappear: {fileID: 1827226128182048838, guid: 2a0a89416456b054a9a0a700f5765c53,
+    type: 3}

@@ -29,11 +29,15 @@ public class GameTileContentFactory : GameObjectFactory {
 		return null;
 	}
 
-	public Tower Get (TowerType type) {
+	public Tower Get (TowerType type, int x, int y) {
 		Debug.Assert((int)type < towerPrefabs.Length, "Unsupported tower type!");
 		Tower prefab = towerPrefabs[(int)type];
 		Debug.Assert(type == prefab.TowerType, "Tower prefab at wrong index!");
-		return Get(prefab);
+		Tower tower = Get(prefab);
+		tower.X = x;
+		tower.Y = y;
+		tower.init();
+		return tower;
 	}
 
 	public void Reclaim (GameTileContent content) {

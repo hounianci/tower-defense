@@ -12,9 +12,11 @@ public class LaserTower : Tower {
 
 	Vector3 laserBeamScale;
 
-	void Awake () {
+    protected override void init0()
+    {
+		base.init0();
 		laserBeamScale = laserBeam.localScale;
-	}
+    }
 
 	public override TowerType TowerType => TowerType.Laser;
 
@@ -28,6 +30,9 @@ public class LaserTower : Tower {
 	}
 
 	void Shoot () {
+		if(target==null||target.Position==null){
+			return;
+		}
 		Vector3 point = target.Position;
 		turret.LookAt(point);
 		laserBeam.localRotation = turret.localRotation;
@@ -40,4 +45,13 @@ public class LaserTower : Tower {
 
 		target.Enemy.ApplyDamage(damagePerSecond * Time.deltaTime);
 	}
+
+    protected override void loseTarget()
+    {
+		laserBeam.gameObject.SetActive(false);
+    }
+    protected override void lockTarget()
+    {
+		laserBeam.gameObject.SetActive(true);
+    }
 }
