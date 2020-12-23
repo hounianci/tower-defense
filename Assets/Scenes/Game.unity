@@ -562,9 +562,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a8c46f22f8c47a1a14e9657bbb981b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapId: 2
   boardSize: {x: 11, y: 11}
   board: {fileID: 495667348}
   tileContentFactory: {fileID: 11400000, guid: 50b576fe36976479e97d482d8067eae9, type: 2}
+  towerFactory: {fileID: 11400000, guid: f278d3cb50d250a4cb5eb277fb8071ba, type: 2}
   warFactory: {fileID: 11400000, guid: b789edf438f4f4c4284ecee7f1d8598c, type: 2}
   scenario: {fileID: 11400000, guid: 5ec7eb9aec85440d4905132b9265c37c, type: 2}
   startingPlayerHealth: 0

@@ -18,11 +18,12 @@ public class GameBoard : MonoBehaviour {
 
 	List<GameTile> spawnPoints = new List<GameTile>();
 
-	List<GameTileContent> updatingContent = new List<GameTileContent>();
+	List<GameActor> updatingContent = new List<GameActor>();
 
 	Queue<GameTile> searchFrontier = new Queue<GameTile>();
 
 	GameTileContentFactory contentFactory;
+	TowerFactory towerFactory;
 
 	Tower selectingTower;
 
@@ -132,68 +133,59 @@ public class GameBoard : MonoBehaviour {
 		GameTile start = from;
 		Queue<GameTile> queue = new Queue<GameTile>();
 		queue.Enqueue(start);
+		visited[start.Y][start.X] = true;
 		int depth = 0;
 		while(queue.Count>0){
 			int count = queue.Count;
 			for(int i=0; i<count; i++){
 				GameTile tile = queue.Dequeue();
-				if(tile==null){
-					continue;
-				}
 				if(tile==to){
+					map[tile.Y][tile.X] = depth;
 					queue.Clear();
 					break;
 				}
-				if(!visited[tile.X][tile.Y]){
-					if(!CanPass(tile)){
-						visited[tile.X][tile.Y] = true;
-						continue;
-					}
-					map[tile.X][tile.Y] = depth;
-					if(tile.West!=null){
-						GameTile west = tile.West;
-						pathInfo[west.X][west.Y] = new int[]{tile.X, tile.Y};
-						queue.Enqueue(tile.West);
-					}
-					if(tile.East!=null){
-						GameTile east = tile.East;
-						pathInfo[east.X][east.Y] = new int[]{tile.X, tile.Y};
-						queue.Enqueue(tile.East);
-					}
-					if(tile.North!=null){
-						GameTile north = tile.North;
-						pathInfo[north.X][north.Y] = new int[]{tile.X, tile.Y};
-						queue.Enqueue(tile.North);
-					}
-					if(tile.South!=null){
-						GameTile south = tile.South;
-						pathInfo[south.X][south.Y] = new int[]{tile.X, tile.Y};
-						queue.Enqueue(tile.South);
-					}
-					visited[tile.X][tile.Y] = true;
-				}
+				AddTileToQueue(tile, tile.West, map, visited, pathInfo, depth+1, queue);
+				AddTileToQueue(tile, tile.East, map, visited, pathInfo, depth+1, queue);
+				AddTileToQueue(tile, tile.North, map, visited, pathInfo, depth+1, queue);
+				AddTileToQueue(tile, tile.South, map, visited, pathInfo, depth+1, queue);
 			}
 			depth++;
 		}
 		List<GameTile> path = new List<GameTile>();
 		GameTile end = to;
+		path.Add(to);
+		if(map[end.Y][end.X]==-1){
+			return null;
+		}
 		while(end != from){
-			GameTile tmp = GetGameTile(pathInfo[end.X][end.Y][0], pathInfo[end.X][end.Y][1]);
+			GameTile tmp = GetGameTile(pathInfo[end.Y][end.X][1], pathInfo[end.Y][end.X][0]);
 			path.Add(tmp);
 			end = tmp;
 		}
+		path.RemoveAt(path.Count-1);
+		path.Reverse();
 		return path;
 	}
 
-	public bool CanPass(GameTile tile){
+	private void AddTileToQueue(GameTile baseTile, GameTile neighbor, int[][] map, bool[][] visited, int[][][] pathInfo, int depth, Queue<GameTile> queue){
+		if(neighbor==null){
+			return;
+		}
+		if(!CanPass(neighbor)){
+			return;
+		}
+		if(visited[neighbor.Y][neighbor.X]){
+			return;
+		}
+		visited[neighbor.Y][neighbor.X] = true;
+		map[neighbor.Y][neighbor.X] = depth;
+		pathInfo[neighbor.Y][neighbor.X] = new int[]{baseTile.Y, baseTile.X};
+		queue.Enqueue(neighbor);
+	}
+
+	private bool CanPass(GameTile tile){
 		if(tile.Content.Type == GameTileContentType.Wall){
 			return false;
-		}
-		if(tile.Content.Type==GameTileContentType.Tower){
-			Tower tower = (Tower) tile.Content;
-			if(tower.TowerType!=TowerType.Warrior){
-				return false;
-			}
 		}
 		return true;
 	}
@@ -261,43 +253,19 @@ public class GameBoard : MonoBehaviour {
 	}
 
 	public void ToggleTower (GameTile tile, TowerType towerType) {
-		if (tile.Content.Type == GameTileContentType.Tower) {
-			updatingContent.Remove(tile.Content);
-			if (((Tower)tile.Content).TowerType == towerType) {
-				tile.Content = contentFactory.Get(GameTileContentType.Empty);
-				FindPaths();
-			}
-			else {
-				tile.Content = contentFactory.Get(towerType, tile.X, tile.Y);
-				updatingContent.Add(tile.Content);
-			}
+		if(tile.Content.OnboardTargets.ContainsKey(1)){
+			return;
 		}
-		else if (tile.Content.Type == GameTileContentType.Empty) {
-			List<Enemy> enemies = tile.Content.Enemies;
-			tile.Content = contentFactory.Get(towerType, tile.X, tile.Y);
-			tile.Content.Enemies = enemies;
-			if(towerType != TowerType.Warrior){
-				if (FindPaths()) {
-					updatingContent.Add(tile.Content);
-				}
-				else {
-					tile.Content = contentFactory.Get(GameTileContentType.Empty);
-					FindPaths();
-				}
-			}else{
-				updatingContent.Add(tile.Content);
-				WarriorTower warrior = (WarriorTower)tile.Content;
-				foreach(Enemy enemy in tile.Content.Enemies){
-					warrior.enemyPass(enemy);
-				}
-			}
-			SelectingTower = (Tower)tile.Content;
+		Tower tower = towerFactory.Get(towerType, tile);
+		List<TargetAble> towers = new List<TargetAble>();
+		towers.Add(tower);
+		tile.Content.OnboardTargets.Add(1, towers);
+		selectingTower = tower;
+		List<Enemy> enemies = tile.Content.Enemies;
+		foreach(Enemy enemy in tile.Content.Enemies){
+			tower.enemyPass(enemy);
 		}
-		else if (tile.Content.Type == GameTileContentType.Wall) {
-			tile.Content = contentFactory.Get(towerType, tile.X, tile.Y);
-			SelectingTower = (Tower)tile.Content;
-			updatingContent.Add(tile.Content);
-		}
+		updatingContent.Add(tower);
 	}
 
 	public void selectingTowerChangeDirection(Direction direction){
@@ -306,14 +274,20 @@ public class GameBoard : MonoBehaviour {
 		}
 	}
 
-	public List<GameTile> targetTailes(int x, int y, int xOffset, int yOffset, int num, List<List<int>> range){
+	public List<GameTile> targetTailes(Vector2Int trackerPos, Vector2Int rangeOffset, List<List<int>> range){
 		List<GameTile> results = new List<GameTile>();
-		int startX = Mathf.Max(0, x-xOffset);
-		int startY = Mathf.Max(0, y-yOffset);
-		for(int i=0; i<range.Count&&startX+i<size.x; i++){
-			for(int j=0; j<range[i].Count&&startY+j<size.y; j++){
-				if(range[i][j]==1){
-					results.Add(tiles[startY+j][startX+i]);
+		int startX = Mathf.Max(0, trackerPos.x-rangeOffset.x);
+		int startY = Mathf.Max(0, trackerPos.y-rangeOffset.y);
+		if(range==null){
+			for(int i=0; i<tiles.Length; i++){
+				results.AddRange(tiles[i]);
+			}
+		}else{
+			for(int i=0; i<range.Count&&startX+i<size.x; i++){
+				for(int j=0; j<range[i].Count&&startY+j<size.y; j++){
+					if(range[i][j]==1){
+						results.Add(tiles[startY+j][startX+i]);
+					}
 				}
 			}
 		}
@@ -342,9 +316,9 @@ public class GameBoard : MonoBehaviour {
 
 	public List<GameTile> FindEnemyPath(int[] start, List<int[]> mainTile){
 		List<GameTile> path = new List<GameTile>();
-		GameTile startTile = GetGameTile(start[0], start[1]);
+		GameTile startTile = GetGameTile(start[1], start[0]);
 		for(int i=0; i<mainTile.Count; i++){
-			GameTile endTile = GetGameTile(mainTile[i][0], mainTile[i][1]);
+			GameTile endTile = GetGameTile(mainTile[i][1], mainTile[i][0]);
 			path.AddRange(GenericDestinationPath(startTile, endTile));
 			startTile = endTile;
 		}

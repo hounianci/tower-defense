@@ -42,8 +42,8 @@ public class Enemy : GameBehavior {
 
 	private Tower blockingTower;
 
-	public void InitPath(){
-		string pathPointsStr = FileUtil.readFile(string.Format("Assets/Path/{0}Path.txt", id));
+	public void InitPath(int mapId){
+		string pathPointsStr = FileUtil.readFile(string.Format("Assets/Path/Map{0}/{1}Path.txt", mapId, id));
 		string[] pathPoints = pathPointsStr.Split('|');
 		List<int[]> mainPoints = new List<int[]>();
 		foreach(string pathPointStr in pathPoints){
@@ -53,6 +53,8 @@ public class Enemy : GameBehavior {
 			mainPoints.Add(new int[]{y, x});
 		}
 		path = board.FindEnemyPath(new int[]{tileFrom.Y, tileFrom.X}, mainPoints);
+		tileTo = path[0];
+		path.RemoveAt(0);
 	}
 
 	public Tower BlockingTower{
@@ -134,17 +136,18 @@ public class Enemy : GameBehavior {
 			targetPointCollider.enabled = false;
 			return true;
 		}
+		if (tileTo == null) {
+			Game.EnemyReachedDestination();
+			animator.PlayOutro();
+			targetPointCollider.enabled = false;
+			return true;
+		}
 		progress += Time.deltaTime * progressFactor;
 		if(progress >= 1){
-			if (tileTo == null) {
-				Game.EnemyReachedDestination();
-				animator.PlayOutro();
-				targetPointCollider.enabled = false;
-				return true;
-			}
 			if(blockingTower==null){
 				progress = (progress - 1f) / progressFactor;
-				PrepareNextState();
+				if(!PrepareNextState())
+					return true;
 				progress *= progressFactor;
 			}else{
 				//被阻挡
@@ -188,9 +191,7 @@ public class Enemy : GameBehavior {
 
 	public void SpawnOn (GameTile tile) {
 		tileFrom = tile;
-		tileTo = tile.NextTileOnPath;
 		progress = 0f;
-		PrepareIntro();
 	}
 
 	void Awake () {
@@ -200,17 +201,18 @@ public class Enemy : GameBehavior {
 		);
 	}
 
-	void PrepareNextState () {
+	bool PrepareNextState () {
 		tileFrom.Content.Enemies.Remove(this);
 		tileFrom = tileTo;
 		tileFrom.Content.Enemies.Add(this);
-		tileTo = tileTo.NextTileOnPath;
-		positionFrom = positionTo;
-		if (tileTo == null) {
+		if(path.Count==0){
 			PrepareOutro();
-			return;
+			return false;
 		}
-		positionTo = tileFrom.ExitPoint;
+		tileTo = path[0];
+		path.RemoveAt(0);
+		positionFrom = positionTo;
+		positionTo = tileTo.transform.localPosition;
 		directionChange = direction.GetDirectionChangeTo(tileFrom.PathDirection);
 		direction = tileFrom.PathDirection;
 		directionAngleFrom = directionAngleTo;
@@ -220,10 +222,11 @@ public class Enemy : GameBehavior {
 			case DirectionChange.TurnLeft: PrepareTurnLeft(); break;
 			default: PrepareTurnAround(); break;
 		}
-		if(tileTo.Content.Type == GameTileContentType.Tower){
-			Tower tower = (Tower)tileTo.Content;
+		if(tileTo.Content.OnboardTargets.ContainsKey(1)){
+			Tower tower = (Tower)tileTo.Content.OnboardTargets[1][0];
 			tower.enemyPass(this);
 		}
+		return true;
 	}
 
 	void PrepareForward () {
@@ -255,10 +258,10 @@ public class Enemy : GameBehavior {
 			speed / (Mathf.PI * Mathf.Max(Mathf.Abs(pathOffset), 0.2f));
 	}
 
-	void PrepareIntro () {
+	public void PrepareIntro () {
 		positionFrom = tileFrom.transform.localPosition;
 		transform.localPosition = positionFrom;
-		positionTo = tileFrom.ExitPoint;
+		positionTo = tileTo.transform.localPosition;
 		direction = tileFrom.PathDirection;
 		directionChange = DirectionChange.None;
 		directionAngleFrom = directionAngleTo = direction.GetAngle();
@@ -268,12 +271,13 @@ public class Enemy : GameBehavior {
 	}
 
 	void PrepareOutro () {
-		positionTo = tileFrom.transform.localPosition;
-		directionChange = DirectionChange.None;
-		directionAngleTo = direction.GetAngle();
-		model.localPosition = new Vector3(pathOffset, 0f);
-		transform.localRotation = direction.GetRotation();
-		progressFactor = 2f * speed;
+		positionTo = tileTo.transform.localPosition;
+		// directionChange = DirectionChange.None;
+		// directionAngleTo = direction.GetAngle();
+		// model.localPosition = new Vector3(pathOffset+10, 0f);
+		// transform.localRotation = direction.GetRotation();
+		// progressFactor = 2f * speed;
+		tileTo = null;
 	}
 
 	void OnDestroy () {

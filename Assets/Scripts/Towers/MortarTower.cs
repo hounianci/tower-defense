@@ -20,9 +20,9 @@ public class MortarTower : Tower {
 
 	float launchProgress;
 
-    protected override void init0()
+    protected override void Init0()
     {
-		base.init0();
+		base.Init0();
     }
 
 	public override void GameUpdate () {

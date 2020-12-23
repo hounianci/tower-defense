@@ -16,6 +16,14 @@ public class GameTileContent : MonoBehaviour {
 		set{y=value;}
 	}
 	GameTileContentFactory originFactory;
+	Dictionary<int, List<TargetAble>> onboardTargets = new Dictionary<int, List<TargetAble>>();
+	
+
+	public Dictionary<int, List<TargetAble>> OnboardTargets{
+		get => onboardTargets;
+		set {onboardTargets = value;}
+	}
+
 	List<Enemy> enemies = new List<Enemy>();
 
 	public List<Enemy> Enemies{
@@ -24,7 +32,7 @@ public class GameTileContent : MonoBehaviour {
 	}
 
 	public bool BlocksPath =>
-		Type == GameTileContentType.Wall || Type == GameTileContentType.Tower;
+		Type == GameTileContentType.Wall;
 
 	public GameTileContentType Type => type;
 
@@ -39,14 +47,9 @@ public class GameTileContent : MonoBehaviour {
 	void Awake(){
 	}
 
-	public void init(){
-		init0();
-	}
 
 	public void Recycle () {
 		originFactory.Reclaim(this);
 	}
 
-	public virtual void GameUpdate () { }
-	protected virtual void init0 () { }
 }

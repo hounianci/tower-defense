@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class Tower : GameTileContent {
+public abstract class Tower : GameActor, TargetAble {
 
 	[SerializeField]
 	private int id;
-
-	private List<List<int>> targetRange;
-	private Vector2Int targetRangeSelfPos;
 
 	public abstract TowerType TowerType { get; }
 
@@ -15,20 +12,24 @@ public abstract class Tower : GameTileContent {
 	
 	private Direction direction = Direction.East;
 
-	private List<GameTile> rangeGameTiles;
-
+	Skill currentSkill;
+	public Skill CurrentSkill{
+		get=>currentSkill;
+		set{currentSkill=value;}
+	}
+	Skill[] skillQueue;
+	public Skill[] SkillQueue{
+		get=>skillQueue;
+		set{skillQueue=value;}
+	}
+	int skillQueueIndex;
+	public int SkillQueueIndex{
+		get=>skillQueueIndex;
+		set{skillQueueIndex=value;}
+	}
 	public Direction Direction{
 		get => direction;
 		set {direction = value;}
-	}
-	public List<GameTile> RangeGameTiles{
-		get=>rangeGameTiles;
-		set{rangeGameTiles=value;}
-	}
-
-	public Vector2Int TargetRangeSelfPos{
-		get => targetRangeSelfPos;
-		set{targetRangeSelfPos = value;}
 	}
 
 	public List<Enemy> BlockingEnemy{
@@ -40,7 +41,8 @@ public abstract class Tower : GameTileContent {
 	}
 
 	public void changeShowInRange(bool show){
-		foreach(GameTile tile in rangeGameTiles){
+		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(this, Game.Instance.Board);
+		foreach(GameTile tile in currentSkillRange){
 			if(show){
 				tile.ShowInRange();
 			}else{
@@ -50,48 +52,28 @@ public abstract class Tower : GameTileContent {
 	}
 
 	public void changeDirection(Direction newDirection){
-		DirectionChange change = direction.GetDirectionChangeTo(newDirection);
-		foreach(GameTile tile in rangeGameTiles){
-			changeShowInRange(false);
-		}
-		if(change==DirectionChange.TurnLeft){
-			targetRange = FileUtil.matrixTurnLeft(targetRange);
-		}else if(change==DirectionChange.TurnRight){
-			targetRange = FileUtil.matrixTurnRight(targetRange);
-		}else if(change==DirectionChange.TurnAround){
-			if(newDirection==Direction.North || newDirection==Direction.South){
-				targetRange = FileUtil.matrixTurnAround2(targetRange);
-			}else{
-				targetRange = FileUtil.matrixTurnAround(targetRange);
-			}
-		}
-		loadSelfRangePos();
-		rangeGameTiles = Game.Instance.Board.targetTailes(X, Y, targetRangeSelfPos.x, targetRangeSelfPos.y, 1, targetRange);
+		changeShowInRange(false);
+		currentSkill.Tracker.TurnRange(newDirection);
 		changeShowInRange(true);
 		this.direction = newDirection;
 	}
 
-	protected override void init0(){
-		loadTargetRange();
-		rangeGameTiles = Game.Instance.Board.targetTailes(X, Y, targetRangeSelfPos.x, targetRangeSelfPos.y, 1, targetRange);
-		changeShowInRange(true);
-		
-	}
-
-	public void loadTargetRange(){
-		targetRange = FileUtil.readFileMatrix(string.Format("Assets/TargetRange/{0}.txt", id));
-		loadSelfRangePos();
-		Debug.Log(targetRangeSelfPos);
-	}
-
-	public void loadSelfRangePos(){
-		for(int i=0; i<targetRange.Count; i++){
-			for(int j=0; j<targetRange[i].Count; j++){
-				if(targetRange[i][j]==2){
-					targetRangeSelfPos = new Vector2Int(i, j);
-				}
-			}
+	protected override void Init0(){
+		string towerInfo = FileUtil.readFile(string.Format("Assets/Tower/{0}_Tower.txt", id));
+		string[] infoStr = towerInfo.Split(',');
+		skillQueue = new Skill[infoStr.Length];
+		for(int i=0; i<infoStr.Length; i++){
+			Skill skill = new Skill();
+			skill.Init(int.Parse(infoStr[i]));
+			skillQueue[i] = skill; 
 		}
+		changeSkill();
+	}
+
+	protected void changeSkill(){
+		currentSkill = skillQueue[skillQueueIndex%skillQueue.Length];
+		skillQueueIndex++;
+		currentSkill.Tracker.TurnRange(Direction);
 	}
 
 	protected virtual int blockNum(){
@@ -111,7 +93,8 @@ public abstract class Tower : GameTileContent {
 	//寻找目标
 	protected bool AcquireTarget (out TargetPoint target) {
 		List<TargetPoint> list = new List<TargetPoint>();
-		foreach(GameTile tile in rangeGameTiles){
+		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(this, Game.Instance.Board);
+		foreach(GameTile tile in currentSkillRange){
 			if(tile.Content.Enemies!=null && tile.Content.Enemies.Count>0){
 				foreach(Enemy enemy in tile.Content.Enemies){
 					list.Add(enemy.TargetPoint);
@@ -133,7 +116,8 @@ public abstract class Tower : GameTileContent {
 		if (target == null || !target.Enemy.IsValidTarget) {
 			return false;
 		}
-		foreach(GameTile tile in rangeGameTiles){
+		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(this, Game.Instance.Board);
+		foreach(GameTile tile in currentSkillRange){
 			if(tile==target.Enemy.TileFrom){
 				return true;
 			}
@@ -149,6 +133,13 @@ public abstract class Tower : GameTileContent {
 	}
 	protected virtual void lockTarget(){
 		
+	}
+
+    public Vector2Int GetPosition(){
+		return new Vector2Int();
+	}
+    public int TeamId(){
+		return 1;
 	}
 
 }

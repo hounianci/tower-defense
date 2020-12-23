@@ -15,8 +15,6 @@ public class GameTileContentFactory : GameObjectFactory {
 	[SerializeField]
 	GameTileContent spawnPointPrefab = default;
 
-	[SerializeField]
-	Tower[] towerPrefabs = default;
 
 	public GameTileContent Get (GameTileContentType type) {
 		switch (type) {
@@ -27,17 +25,6 @@ public class GameTileContentFactory : GameObjectFactory {
 		}
 		Debug.Assert(false, "Unsupported non-tower type: " + type);
 		return null;
-	}
-
-	public Tower Get (TowerType type, int x, int y) {
-		Debug.Assert((int)type < towerPrefabs.Length, "Unsupported tower type!");
-		Tower prefab = towerPrefabs[(int)type];
-		Debug.Assert(type == prefab.TowerType, "Tower prefab at wrong index!");
-		Tower tower = Get(prefab);
-		tower.X = x;
-		tower.Y = y;
-		tower.init();
-		return tower;
 	}
 
 	public void Reclaim (GameTileContent content) {

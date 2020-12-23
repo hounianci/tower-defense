@@ -7,6 +7,8 @@ using System.Collections.Generic;
 public class Game : MonoBehaviour {
 
 	const float pausedTimeScale = 0f;
+	[SerializeField]
+	int mapId;
 
 	[SerializeField]
 	Vector2Int boardSize = new Vector2Int(11, 11);
@@ -20,6 +22,9 @@ public class Game : MonoBehaviour {
 
 	[SerializeField]
 	GameTileContentFactory tileContentFactory = default;
+
+	[SerializeField]
+	TowerFactory towerFactory = default;
 
 	[SerializeField]
 	WarFactory warFactory = default;
@@ -65,8 +70,9 @@ public class Game : MonoBehaviour {
 		Enemy enemy = factory.Get(type);
 		enemy.Board = instance.Board;
 		enemy.SpawnOn(spawnPoint);
-		enemy.InitPath();
+		enemy.InitPath(instance.mapId);
 		instance.enemies.Add(enemy);
+		enemy.PrepareIntro();
 	}
 
 	public static Explosion SpawnExplosion () {
@@ -111,7 +117,6 @@ public class Game : MonoBehaviour {
             board.ToggleWall(tile);
         }
         board.ShowGrid = true;
-		board.GenericDestinationPath(board.GetGameTile(0,0), board.GetGameTile(2, 0));
         activeScenario = scenario.Begin();
     }
 
@@ -214,7 +219,9 @@ public class Game : MonoBehaviour {
 			if (Input.GetKey(KeyCode.LeftShift)) {
 				board.ToggleTower(tile, selectedTowerType);
 			}else if(Input.GetKey(KeyCode.LeftAlt)){
-				board.SelectingTower = (Tower)tile.Content;
+				if(tile.Content.OnboardTargets.ContainsKey(1)){
+					board.SelectingTower = (Tower)tile.Content.OnboardTargets[1][0];
+				}
 			}
 			else {
 				board.ToggleWall(tile);
@@ -224,7 +231,7 @@ public class Game : MonoBehaviour {
 
     void ReadFile()
     {
-		List<List<int>> matrix = FileUtil.readFileMatrix("1.txt");
+		List<List<int>> matrix = FileUtil.readFileMatrix(string.Format("Assets/Map/{0}.txt", mapId));
 	 	for(int row=0; row<matrix.Count;row++){	
 			List<int> rowContent = matrix[row];
 			for(int col=0; col<rowContent.Count; col++){
