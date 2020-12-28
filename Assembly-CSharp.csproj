@@ -36,6 +36,7 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\TargetSystem\AbstractTrack.cs" />
      <Compile Include="Assets\Scripts\Enemy\Enemy.cs" />
      <Compile Include="Assets\Scripts\GameBehaviorCollection.cs" />
      <Compile Include="Assets\Scripts\GameTileContentType.cs" />
@@ -43,6 +44,7 @@
      <Compile Include="Assets\Scripts\War\Shell.cs" />
      <Compile Include="Assets\Scripts\Towers\MortarTower.cs" />
      <Compile Include="Assets\Scripts\War\WarFactory.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\FileRangeTrack.cs" />
      <Compile Include="Assets\Scripts\GameBoard.cs" />
      <Compile Include="Assets\Scripts\Scenario\EnemySpawnSequence.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyAnimationConfig.cs" />
@@ -52,7 +54,10 @@
      <Compile Include="Assets\Scripts\Towers\LaserTower.cs" />
      <Compile Include="Assets\Scripts\Scenario\EnemyWave.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyType.cs" />
+     <Compile Include="Assets\Scripts\Actor\GameActor.cs" />
      <Compile Include="Assets\Scripts\Towers\TowerType.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\TargetAble.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\TargetFactory.cs" />
      <Compile Include="Assets\Scripts\Utils\FileUtil.cs" />
      <Compile Include="Assets\Scripts\FloatRangeSliderAttribute.cs" />
      <Compile Include="Assets\Scripts\Towers\Tower.cs" />
@@ -60,6 +65,8 @@
      <Compile Include="Assets\Scripts\Enemy\EnemyAnimator.cs" />
      <Compile Include="Assets\Scripts\GameBehavior.cs" />
      <Compile Include="Assets\Scripts\FloatRange.cs" />
+     <Compile Include="Assets\Scripts\Towers\TowerFactory.cs" />
+     <Compile Include="Assets\Scripts\Skill\Skill.cs" />
      <Compile Include="Assets\Scripts\GameTileContent.cs" />
      <Compile Include="Assets\Scripts\Direction.cs" />
      <Compile Include="Assets\Scripts\TargetPoint.cs" />
@@ -67,18 +74,15 @@
      <Compile Include="Assets\Scripts\GameObjectFactory.cs" />
      <Compile Include="Assets\Scripts\GameTileContentFactory.cs" />
      <Compile Include="Assets\Scripts\War\Explosion.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\TargetAble.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\AbstractTrack.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\FileRangeTrack.cs" />
-     <Compile Include="Assets\Scripts\Skill\Skill.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\TargetFactory.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\FileRangeTrackerFactory.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\TrackerFactory.cs" />
-     <Compile Include="Assets\Scripts\Actor\GameActor.cs" />
-     <Compile Include="Assets\Scripts\Towers\TowerFactory.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\BlockingTracker.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\factory\FileRangeTrackerFactory.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\factory\TrackerFactory.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\factory\BlockingTrackerFactory.cs" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\Alien.shader" />
+     <None Include="Assets\Tower\2_Tower.txt" />
      <None Include="Assets\TargetRange\3_Range.txt" />
      <None Include="Assets\Path\Map1\5Path.txt" />
+     <None Include="Assets\Tower\3_Tower.txt" />
      <None Include="Assets\TargetRange\1_Range.txt" />
      <None Include="Assets\Path\Map1\1Path.txt" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\EyeLash.shader" />
@@ -86,6 +90,7 @@
      <None Include="Assets\Path\Map2\2Path.txt" />
      <None Include="Assets\Path\Map2\3Path.txt" />
      <None Include="Assets\Path\Map1\6Path.txt" />
+     <None Include="Assets\Skill\2_Skill.txt" />
      <None Include="Assets\Path\Map2\4Path.txt" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\EyeBallsHD.shader" />
      <None Include="Assets\Tower\1_Tower.txt" />
@@ -95,6 +100,7 @@
      <None Include="Assets\TargetRange\2_Range.txt" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\EnergyCore.shader" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\SculptedHair.shader" />
+     <None Include="Assets\Skill\3_Skill.txt" />
      <None Include="Assets\Path\Map1\3Path.txt" />
      <None Include="Assets\Path\Map2\6Path.txt" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\ToonSkin.shader" />

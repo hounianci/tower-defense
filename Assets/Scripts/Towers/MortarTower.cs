@@ -28,8 +28,8 @@ public class MortarTower : Tower {
 	public override void GameUpdate () {
 		launchProgress += shotsPerSecond * Time.deltaTime;
 		while (launchProgress >= 1f) {
-			if (AcquireTarget(out TargetPoint target)) {
-				Launch(target);
+			if (AcquireTarget()) {
+				Launch();
 				launchProgress -= 1f;
 			}
 			else {
@@ -38,9 +38,10 @@ public class MortarTower : Tower {
 		}
 	}
 
-	public void Launch (TargetPoint target) {
+	public void Launch () {
+		TargetAble target = targets[0];
 		Vector3 launchPoint = mortar.position;
-		Vector3 targetPoint = target.Position;
+		Vector3 targetPoint = target.GetPosition();
 		targetPoint.y = 0f;
 
 		Vector2 dir;

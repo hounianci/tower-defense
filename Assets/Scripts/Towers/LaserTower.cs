@@ -8,8 +8,6 @@ public class LaserTower : Tower {
 	[SerializeField]
 	Transform turret = default, laserBeam = default;
 
-	TargetPoint target;
-
 	Vector3 laserBeamScale;
 
     protected override void Init0()
@@ -21,7 +19,7 @@ public class LaserTower : Tower {
 	public override TowerType TowerType => TowerType.Laser;
 
 	public override void GameUpdate () {
-		if (TrackTarget(ref target) || AcquireTarget(out target)) {
+		if (TrackTarget() || AcquireTarget()) {
 			Shoot();
 		}
 		else {
@@ -30,10 +28,11 @@ public class LaserTower : Tower {
 	}
 
 	void Shoot () {
-		if(target==null||target.Position==null){
+		if(targets==null||targets.Count==0){
 			return;
 		}
-		Vector3 point = target.Position;
+		TargetAble target = targets[0];
+		Vector3 point = target.GetPosition();
 		turret.LookAt(point);
 		laserBeam.localRotation = turret.localRotation;
 
@@ -43,7 +42,8 @@ public class LaserTower : Tower {
 		laserBeam.localPosition =
 			turret.localPosition + 0.5f * d * laserBeam.forward;
 
-		target.Enemy.ApplyDamage(damagePerSecond * Time.deltaTime);
+		target.ApplyDamage(CurrentSkill.Damage);
+		changeSkill();
 	}
 
     protected override void loseTarget()

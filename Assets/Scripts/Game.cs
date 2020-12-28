@@ -100,7 +100,7 @@ public class Game : MonoBehaviour {
     {
         ReadFile();
         playerHealth = startingPlayerHealth;
-        board.Initialize(boardSize, tileContentFactory);
+        board.Initialize(boardSize, tileContentFactory, towerFactory);
         foreach (Vector2Int v in initSpwan)
         {
             GameTile tile = board.GetTile(v.x, v.y);
@@ -232,6 +232,7 @@ public class Game : MonoBehaviour {
     void ReadFile()
     {
 		List<List<int>> matrix = FileUtil.readFileMatrix(string.Format("Assets/Map/{0}.txt", mapId));
+		matrix = FileUtil.matrixTurnAround(matrix);
 	 	for(int row=0; row<matrix.Count;row++){	
 			List<int> rowContent = matrix[row];
 			for(int col=0; col<rowContent.Count; col++){

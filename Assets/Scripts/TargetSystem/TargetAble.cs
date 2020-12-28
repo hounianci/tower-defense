@@ -4,6 +4,8 @@ using UnityEngine;
 
 public interface TargetAble
 {    
-    Vector2Int GetPosition();
+    Vector2Int GetTilePosition();
+    Vector3 GetPosition();
     int TeamId();
+    int ApplyDamage(float damage);
 }

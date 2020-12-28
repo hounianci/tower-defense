@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameActor : MonoBehaviour
 {
+
     void Start()
     {
         
@@ -14,6 +15,12 @@ public class GameActor : MonoBehaviour
         
     }
 
+
+    protected int hp;
+    public int Hp{
+        get=>hp;
+        set{hp=value;}
+    }
     GameBoard board;
     public GameBoard Board{
         get=>board;
@@ -28,7 +35,14 @@ public class GameActor : MonoBehaviour
     public void Init(GameTile tile, GameBoard board){
         this.tile = tile;
         this.board = board;
+        transform.SetParent(tile.transform);
+        transform.localPosition = new Vector3(0, 0, 0);
 		Init0();
+    }
+    List<GameActor> blockActors;
+    public List<GameActor> BlockActors{
+        get=>blockActors;
+        set{blockActors=value;}
     }
 	TowerFactory originFactory;
 	public TowerFactory OriginFactory {

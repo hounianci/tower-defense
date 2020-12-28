@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public abstract class Tower : GameActor, TargetAble {
@@ -11,6 +11,11 @@ public abstract class Tower : GameActor, TargetAble {
 	public List<Enemy> blockingEnemy = new List<Enemy>();
 	
 	private Direction direction = Direction.East;
+	protected List<TargetAble> targets;
+	public List<TargetAble> Targets{
+		get=>targets;
+		set{targets=value;}
+	}
 
 	Skill currentSkill;
 	public Skill CurrentSkill{
@@ -41,7 +46,7 @@ public abstract class Tower : GameActor, TargetAble {
 	}
 
 	public void changeShowInRange(bool show){
-		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(this, Game.Instance.Board);
+		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(Game.Instance.Board);
 		foreach(GameTile tile in currentSkillRange){
 			if(show){
 				tile.ShowInRange();
@@ -64,16 +69,20 @@ public abstract class Tower : GameActor, TargetAble {
 		skillQueue = new Skill[infoStr.Length];
 		for(int i=0; i<infoStr.Length; i++){
 			Skill skill = new Skill();
-			skill.Init(int.Parse(infoStr[i]));
+			skill.Init(int.Parse(infoStr[i]), this);
 			skillQueue[i] = skill; 
 		}
+		direction = Direction.North;
 		changeSkill();
+		changeShowInRange(true);
+		hp = 1000;
 	}
 
 	protected void changeSkill(){
 		currentSkill = skillQueue[skillQueueIndex%skillQueue.Length];
 		skillQueueIndex++;
-		currentSkill.Tracker.TurnRange(Direction);
+		currentSkill.Tracker.TurnRange(direction);
+		Debug.Log(string.Format("Tower:skill change to {0}",currentSkill.));
 	}
 
 	protected virtual int blockNum(){
@@ -91,41 +100,42 @@ public abstract class Tower : GameActor, TargetAble {
 	}
 
 	//寻找目标
-	protected bool AcquireTarget (out TargetPoint target) {
-		List<TargetPoint> list = new List<TargetPoint>();
-		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(this, Game.Instance.Board);
-		foreach(GameTile tile in currentSkillRange){
-			if(tile.Content.Enemies!=null && tile.Content.Enemies.Count>0){
-				foreach(Enemy enemy in tile.Content.Enemies){
-					list.Add(enemy.TargetPoint);
-				}
-			}
-		}
-		if (list.Count>0) {
-			target = list[Random.Range(0, list.Count)];
+	protected bool AcquireTarget () {
+		targets = currentSkill.Tracker.TrackTarget(TeamId(), 1);
+		if (targets.Count>0) {
 			lockTarget();
 			return true;
 		}
 		loseTarget();
-		target = null;
+		targets = null;
 		return false;
 	}
 
 	//追踪目标
-	protected bool TrackTarget (ref TargetPoint target) {
-		if (target == null || !target.Enemy.IsValidTarget) {
+	protected bool TrackTarget () {
+		if (targets==null || targets.Count==0) {
 			return false;
 		}
-		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(this, Game.Instance.Board);
+		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(Game.Instance.Board);
+		Vector2Int targetPos = targets[0].GetTilePosition();
+		GameTile targetTile = Board.GetTile(targetPos.x, targetPos.y);
 		foreach(GameTile tile in currentSkillRange){
-			if(tile==target.Enemy.TileFrom){
+			if(tile==targetTile){
 				return true;
 			}
 		}
 		//超出范围
-		target = null;
+		targets = null;
 		loseTarget();
 		return false;
+	}
+
+	public int ApplyDamage(float damage){
+		return (int)(hp-damage);
+	}
+
+	public Vector3 GetPosition(){
+		return transform.position;
 	}
 
 	protected virtual void loseTarget(){
@@ -135,7 +145,7 @@ public abstract class Tower : GameActor, TargetAble {
 		
 	}
 
-    public Vector2Int GetPosition(){
+    public Vector2Int GetTilePosition(){
 		return new Vector2Int();
 	}
     public int TeamId(){

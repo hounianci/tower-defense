@@ -79,10 +79,11 @@ public class GameBoard : MonoBehaviour {
 	public int SpawnPointCount => spawnPoints.Count;
 
 	public void Initialize (
-		Vector2Int size, GameTileContentFactory contentFactory
+		Vector2Int size, GameTileContentFactory contentFactory, TowerFactory towerFactory
 	) {
 		this.size = size;
 		this.contentFactory = contentFactory;
+		this.towerFactory = towerFactory;
 		ground.localScale = new Vector3(size.x, size.y, 1f);
 
 		Vector2 offset = new Vector2(
@@ -285,8 +286,8 @@ public class GameBoard : MonoBehaviour {
 		}else{
 			for(int i=0; i<range.Count&&startX+i<size.x; i++){
 				for(int j=0; j<range[i].Count&&startY+j<size.y; j++){
-					if(range[i][j]==1){
-						results.Add(tiles[startY+j][startX+i]);
+					if(range[i][j]==1||range[i][j]==3){
+						results.Add(tiles[startY+i][startX+j]);
 					}
 				}
 			}
