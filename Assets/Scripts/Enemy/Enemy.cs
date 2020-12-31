@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Enemy : GameBehavior {
+public class Enemy : PositiveActor, TargetAble, BlockerActor {
+
+	public int TeamId(){
+		return 2;
+	}
 
 	[SerializeField]
 	EnemyAnimationConfig animationConfig = default;
@@ -34,13 +38,18 @@ public class Enemy : GameBehavior {
 	float pathOffset;
 	float speed;
 
-	GameBoard board;
-	public GameBoard Board{
-		get=>board;
-		set{board=value;}
+	protected override void Init0 () { 
+		base.Init0();
+		SkillQueue = new Skill[1];
+		Skill skill = new Skill();
+		skill.Init(2, this);
+		SkillQueue[0] = skill; 
+		ChangeSkill();
+	} 
+	public int ApplyDamage(float damage){
+        Hp -= (int)damage;
+		return Hp;
 	}
-
-	private Tower blockingTower;
 
 	public void InitPath(int mapId){
 		string pathPointsStr = FileUtil.readFile(string.Format("Assets/Path/Map{0}/{1}Path.txt", mapId, id));
@@ -52,20 +61,16 @@ public class Enemy : GameBehavior {
 			int y = int.Parse(points[0]);
 			mainPoints.Add(new int[]{y, x});
 		}
-		path = board.FindEnemyPath(new int[]{tileFrom.Y, tileFrom.X}, mainPoints);
+		path = Board.FindEnemyPath(new int[]{tileFrom.Y, tileFrom.X}, mainPoints);
 		tileTo = path[0];
 		path.RemoveAt(0);
 	}
+    public override int ActorTeamId()
+    {
+		return TeamId();
+    }
 
-	public Tower BlockingTower{
-		get => blockingTower;
-		set{
-			blockingTower = value;
-		}
-	}
-	public int Id{
-		get => id;
-	}
+	public Tower BlockingTower{get;set;}
 	EnemyAnimator animator;
 
 	Collider targetPointCollider;
@@ -82,35 +87,13 @@ public class Enemy : GameBehavior {
 		}
 	}
 
-	public EnemyFactory OriginFactory {
-		get => originFactory;
-		set {
-			Debug.Assert(originFactory == null, "Redefined origin factory!");
-			originFactory = value;
-		}
-	}
-
 	public bool IsValidTarget => animator.CurrentClip == EnemyAnimator.Clip.Move;
 
 	public float Scale { get; private set; }
 
-	float Health { get; set; }
 
-	public void ApplyDamage (float damage) {
-		Debug.Assert(damage >= 0f, "Negative damage applied.");
-		Health -= damage;
-	}
-
-	public override bool GameUpdate () {
-#if UNITY_EDITOR
-		if (!animator.IsValid) {
-			animator.RestoreAfterHotReload(
-				model.GetChild(0).GetComponent<Animator>(),
-				animationConfig,
-				animationConfig.MoveAnimationSpeed * speed / Scale
-			);
-		}
-#endif
+	public override bool Update0 () {
+		base.Update0();
 		animator.GameUpdate();
 		//出生
 		if (animator.CurrentClip == EnemyAnimator.Clip.Intro) {
@@ -131,7 +114,7 @@ public class Enemy : GameBehavior {
 			return true;
 		}
 
-		if (Health <= 0f) {
+		if (Hp <= 0f) {
 			animator.PlayDying();
 			targetPointCollider.enabled = false;
 			return true;
@@ -144,7 +127,7 @@ public class Enemy : GameBehavior {
 		}
 		progress += Time.deltaTime * progressFactor;
 		if(progress >= 1){
-			if(blockingTower==null){
+			if(BlockingTower==null){
 				progress = (progress - 1f) / progressFactor;
 				if(!PrepareNextState())
 					return true;
@@ -154,8 +137,8 @@ public class Enemy : GameBehavior {
 				progress = Mathf.Min(1, progress);
 			}
 		}
-		if(blockingTower!=null){
-			if(blockingTower==tileFrom.Content){
+		if(BlockingTower!=null){
+			if(BlockingTower==tileFrom.Content){
 				return true;
 			}
 		}
@@ -172,9 +155,8 @@ public class Enemy : GameBehavior {
 		return true;
 	}
 
-	public override void Recycle () {
+	public override void Recycle0 () {
 		animator.Stop();
-		OriginFactory.Reclaim(this);
 	}
 
 	public void Initialize (
@@ -184,7 +166,7 @@ public class Enemy : GameBehavior {
 		model.localScale = new Vector3(scale, scale, scale);
 		this.speed = speed;
 		this.pathOffset = pathOffset;
-		Health = health;
+		Hp = (int)health;
 		animator.PlayIntro();
 		targetPointCollider.enabled = false;
 	}
@@ -203,8 +185,16 @@ public class Enemy : GameBehavior {
 
 	bool PrepareNextState () {
 		tileFrom.Content.Enemies.Remove(this);
+		if(tileFrom.Content.OnboardTargets.ContainsKey(2)){
+			tileFrom.Content.OnboardTargets[2].Remove(this);
+		}
 		tileFrom = tileTo;
+		Tile = tileFrom;
+		if(!tileFrom.Content.OnboardTargets.ContainsKey(2)){
+			tileFrom.Content.OnboardTargets.Add(2, new List<TargetAble>());
+		}
 		tileFrom.Content.Enemies.Add(this);
+		tileFrom.Content.OnboardTargets[2].Add(this);
 		if(path.Count==0){
 			PrepareOutro();
 			return false;
@@ -282,5 +272,9 @@ public class Enemy : GameBehavior {
 
 	void OnDestroy () {
 		animator.Destroy();
+	}
+
+	public bool IsBlockByMe(GameActor actor){
+		return actor==BlockingTower;
 	}
 }

@@ -48,7 +48,6 @@ public class Game : MonoBehaviour {
 
 	TowerType selectedTowerType;
 
-	GameBehaviorCollection enemies = new GameBehaviorCollection();
 	GameBehaviorCollection nonEnemies = new GameBehaviorCollection();
 
 	Ray TouchRay => Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -68,10 +67,13 @@ public class Game : MonoBehaviour {
             UnityEngine.Random.Range(0, instance.board.SpawnPointCount)
 		);
 		Enemy enemy = factory.Get(type);
+		enemy.Init(spawnPoint, instance.board, (int)type);
 		enemy.Board = instance.Board;
 		enemy.SpawnOn(spawnPoint);
+		enemy.OriginFactory = factory;
 		enemy.InitPath(instance.mapId);
-		instance.enemies.Add(enemy);
+		instance.Board.AddActor(enemy);
+		enemy.transform.parent = instance.board.transform;
 		enemy.PrepareIntro();
 	}
 
@@ -189,13 +191,11 @@ public class Game : MonoBehaviour {
 			BeginNewGame();
 		}
 
-		if (!activeScenario.Progress() && enemies.IsEmpty) {
+		if (!activeScenario.Progress() && (board.UpdateingContent.ContainsKey(2)&&board.UpdateingContent[2].Count==0)) {
 			Debug.Log("Victory!");
 			BeginNewGame();
 			activeScenario.Progress();
 		}
-
-		enemies.GameUpdate();
 		Physics.SyncTransforms();
 		board.GameUpdate();
 		nonEnemies.GameUpdate();
@@ -220,7 +220,7 @@ public class Game : MonoBehaviour {
 				board.ToggleTower(tile, selectedTowerType);
 			}else if(Input.GetKey(KeyCode.LeftAlt)){
 				if(tile.Content.OnboardTargets.ContainsKey(1)){
-					board.SelectingTower = (Tower)tile.Content.OnboardTargets[1][0];
+					board.ChangeSelectingActor((Tower)tile.Content.OnboardTargets[1][0]);
 				}
 			}
 			else {

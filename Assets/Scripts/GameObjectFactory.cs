@@ -20,4 +20,8 @@ public abstract class GameObjectFactory : ScriptableObject {
 		SceneManager.MoveGameObjectToScene(instance.gameObject, scene);
 		return instance;
 	}
+	public void Reclaim (GameActor actor) {
+		Debug.Assert(actor.OriginFactory == this, "Wrong factory reclaimed!");
+		Destroy(actor.gameObject);
+	}
 }

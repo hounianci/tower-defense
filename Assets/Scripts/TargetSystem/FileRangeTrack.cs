@@ -55,6 +55,7 @@ public class FileRangeTrack : AbstractTrack
 			for(int j=0; j<range[i].Count; j++){
 				if(range[i][j]==2||range[i][j]==3){
 					targetRangeSelfPos = new Vector2Int(j, i);
+					return;
 				}
 			}
 		}

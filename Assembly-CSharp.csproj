@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\GameBoard.cs" />
      <Compile Include="Assets\Scripts\Scenario\EnemySpawnSequence.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyAnimationConfig.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\factory\FileRangeTrackerFactory.cs" />
      <Compile Include="Assets\Scripts\Scenario\GameScenario.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyFactory.cs" />
      <Compile Include="Assets\Scripts\Towers\WarriorTower.cs" />
@@ -57,6 +58,7 @@
      <Compile Include="Assets\Scripts\Actor\GameActor.cs" />
      <Compile Include="Assets\Scripts\Towers\TowerType.cs" />
      <Compile Include="Assets\Scripts\TargetSystem\TargetAble.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\BlockingTracker.cs" />
      <Compile Include="Assets\Scripts\TargetSystem\TargetFactory.cs" />
      <Compile Include="Assets\Scripts\Utils\FileUtil.cs" />
      <Compile Include="Assets\Scripts\FloatRangeSliderAttribute.cs" />
@@ -64,7 +66,9 @@
      <Compile Include="Assets\Scripts\GameTile.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyAnimator.cs" />
      <Compile Include="Assets\Scripts\GameBehavior.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\factory\TrackerFactory.cs" />
      <Compile Include="Assets\Scripts\FloatRange.cs" />
+     <Compile Include="Assets\Scripts\TargetSystem\factory\BlockingTrackerFactory.cs" />
      <Compile Include="Assets\Scripts\Towers\TowerFactory.cs" />
      <Compile Include="Assets\Scripts\Skill\Skill.cs" />
      <Compile Include="Assets\Scripts\GameTileContent.cs" />
@@ -74,10 +78,8 @@
      <Compile Include="Assets\Scripts\GameObjectFactory.cs" />
      <Compile Include="Assets\Scripts\GameTileContentFactory.cs" />
      <Compile Include="Assets\Scripts\War\Explosion.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\BlockingTracker.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\factory\FileRangeTrackerFactory.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\factory\TrackerFactory.cs" />
-     <Compile Include="Assets\Scripts\TargetSystem\factory\BlockingTrackerFactory.cs" />
+     <Compile Include="Assets\Scripts\Actor\PositiveActor.cs" />
+     <Compile Include="Assets\Scripts\Actor\BlockerActor.cs" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\Alien.shader" />
      <None Include="Assets\Tower\2_Tower.txt" />
      <None Include="Assets\TargetRange\3_Range.txt" />

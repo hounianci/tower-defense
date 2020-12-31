@@ -23,6 +23,8 @@ public class GameTile : MonoBehaviour {
 	}
 
 	int distance;
+
+	[SerializeField]	
 	int x, y; 
 
 	public int X{

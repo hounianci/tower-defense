@@ -45,6 +45,7 @@ public class EnemyFactory : GameObjectFactory {
 			config.pathOffset.RandomValueInRange,
 			config.health.RandomValueInRange
 		);
+		instance.OriginFactory = this;
 		return instance;
 	}
 

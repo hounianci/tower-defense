@@ -8,4 +8,5 @@ public interface TargetAble
     Vector3 GetPosition();
     int TeamId();
     int ApplyDamage(float damage);
+    bool isAlive();
 }

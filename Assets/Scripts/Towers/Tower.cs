@@ -1,89 +1,48 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class Tower : GameActor, TargetAble {
+public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 
-	[SerializeField]
-	private int id;
 
 	public abstract TowerType TowerType { get; }
-
 	public List<Enemy> blockingEnemy = new List<Enemy>();
-	
-	private Direction direction = Direction.East;
-	protected List<TargetAble> targets;
-	public List<TargetAble> Targets{
-		get=>targets;
-		set{targets=value;}
-	}
+	public Direction Direction{get;set;}
+	public List<Enemy> BlockingEnemy{get;}
 
-	Skill currentSkill;
-	public Skill CurrentSkill{
-		get=>currentSkill;
-		set{currentSkill=value;}
-	}
-	Skill[] skillQueue;
-	public Skill[] SkillQueue{
-		get=>skillQueue;
-		set{skillQueue=value;}
-	}
-	int skillQueueIndex;
-	public int SkillQueueIndex{
-		get=>skillQueueIndex;
-		set{skillQueueIndex=value;}
-	}
-	public Direction Direction{
-		get => direction;
-		set {direction = value;}
-	}
-
-	public List<Enemy> BlockingEnemy{
-		get => blockingEnemy;
-	}
-
-	public int Id{
-		get => id;
-	}
-
-	public void changeShowInRange(bool show){
-		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(Game.Instance.Board);
-		foreach(GameTile tile in currentSkillRange){
-			if(show){
-				tile.ShowInRange();
-			}else{
-				tile.HideInRange();
-			}
-		}
-	}
 
 	public void changeDirection(Direction newDirection){
-		changeShowInRange(false);
-		currentSkill.Tracker.TurnRange(newDirection);
-		changeShowInRange(true);
-		this.direction = newDirection;
+		base.ChangeSkillDirection(newDirection);
+		this.Direction = newDirection;
 	}
 
 	protected override void Init0(){
-		string towerInfo = FileUtil.readFile(string.Format("Assets/Tower/{0}_Tower.txt", id));
+		base.Init0();
+		string towerInfo = FileUtil.readFile(string.Format("Assets/Tower/{0}_Tower.txt", Id));
 		string[] infoStr = towerInfo.Split(',');
-		skillQueue = new Skill[infoStr.Length];
+		SkillQueue = new Skill[infoStr.Length];
 		for(int i=0; i<infoStr.Length; i++){
 			Skill skill = new Skill();
 			skill.Init(int.Parse(infoStr[i]), this);
-			skillQueue[i] = skill; 
+			SkillQueue[i] = skill; 
 		}
-		direction = Direction.North;
-		changeSkill();
-		changeShowInRange(true);
-		hp = 1000;
+		Direction = Direction.North;
+		ChangeSkill();
+		ChangeShowInRange(true);
+		Hp = 10;
 	}
 
-	protected void changeSkill(){
-		currentSkill = skillQueue[skillQueueIndex%skillQueue.Length];
-		skillQueueIndex++;
-		currentSkill.Tracker.TurnRange(direction);
-		Debug.Log(string.Format("Tower:skill change to {0}",currentSkill.));
+	public override bool Update0 () {
+		if(Hp<=0){
+			foreach(Enemy enemy in blockingEnemy){
+				enemy.BlockingTower = null;
+			}
+			Recycle();
+			return false;
+		}else{
+			return base.Update0();
+		}
 	}
+
 
 	protected virtual int blockNum(){
 		return 0;
@@ -99,57 +58,28 @@ public abstract class Tower : GameActor, TargetAble {
 		}
 	}
 
-	//寻找目标
-	protected bool AcquireTarget () {
-		targets = currentSkill.Tracker.TrackTarget(TeamId(), 1);
-		if (targets.Count>0) {
-			lockTarget();
-			return true;
-		}
-		loseTarget();
-		targets = null;
-		return false;
-	}
-
-	//追踪目标
-	protected bool TrackTarget () {
-		if (targets==null || targets.Count==0) {
-			return false;
-		}
-		List<GameTile> currentSkillRange = currentSkill.Tracker.InRangeGameTile(Game.Instance.Board);
-		Vector2Int targetPos = targets[0].GetTilePosition();
-		GameTile targetTile = Board.GetTile(targetPos.x, targetPos.y);
-		foreach(GameTile tile in currentSkillRange){
-			if(tile==targetTile){
+	public bool IsBlockByMe(GameActor actor){
+		foreach(GameActor enemy in blockingEnemy){
+			if(actor == enemy){
 				return true;
 			}
 		}
-		//超出范围
-		targets = null;
-		loseTarget();
 		return false;
 	}
-
 	public int ApplyDamage(float damage){
-		return (int)(hp-damage);
+        Hp -= (int)damage;
+		return Hp;
 	}
 
-	public Vector3 GetPosition(){
-		return transform.position;
+	protected override Direction SkillDirection(){
+		return Direction;
 	}
+    public override int ActorTeamId()
+    {
+		return TeamId();
+    }
 
-	protected virtual void loseTarget(){
-
-	}
-	protected virtual void lockTarget(){
-		
-	}
-
-    public Vector2Int GetTilePosition(){
-		return new Vector2Int();
-	}
     public int TeamId(){
 		return 1;
 	}
-
 }

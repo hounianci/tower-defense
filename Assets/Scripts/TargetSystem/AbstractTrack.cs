@@ -21,9 +21,10 @@ public abstract class AbstractTrack
         set{direction=value;}
     }
     
-    public void Init(int rangeId, GameActor owner){
+    public void Init(int rangeId, GameActor owner, int targetType){
         direction = Direction.North;
         this.owner = owner;
+        this.targetType = targetType;
         Init0(rangeId);
     }
     public List<GameTile> InRangeGameTile(GameBoard board){
@@ -38,30 +39,29 @@ public abstract class AbstractTrack
     public virtual List<TargetAble> TrackTarget(int teamId, int trackNum){
         List<TargetAble> result = new List<TargetAble>();
         List<GameTile> inRangeTile = owner.Board.targetTailes(new Vector2Int(owner.Tile.X, owner.Tile.Y), RangeSelfOffet(), Range());
-        bool isFinish = false;
         foreach(GameTile gameTile in inRangeTile){
             foreach(List<TargetAble> v in gameTile.Content.OnboardTargets.Values){
                 foreach(TargetAble target in v){
-                    int sameTeam = (target.TeamId()^teamId)+1;
+                    int sameTeam = target.TeamId()==teamId?2:1;
                     if((sameTeam&TargetType)!=0){
+                        if(!ValidateTarget(target)){
+                            continue;
+                        }
                         result.Add(target);
                         if(result.Count == trackNum){
-                            isFinish = true;
-                            break;
+                            goto TrackFinish;
                         }
                     }
                 }
-                if(isFinish){
-                    break;
-                }
-            }
-            if(isFinish){
-                break;
             }
         }
+        TrackFinish:
         return result;
     }
 
+    protected virtual bool ValidateTarget(TargetAble target){
+        return true;
+    }
     protected virtual void TurnRange0(Direction newDirection){}
     protected virtual Vector2Int RangeSelfOffet(){
         return new Vector2Int(0, 0);

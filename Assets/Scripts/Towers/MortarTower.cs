@@ -25,7 +25,7 @@ public class MortarTower : Tower {
 		base.Init0();
     }
 
-	public override void GameUpdate () {
+	public override bool Update0 () {
 		launchProgress += shotsPerSecond * Time.deltaTime;
 		while (launchProgress >= 1f) {
 			if (AcquireTarget()) {
@@ -36,6 +36,7 @@ public class MortarTower : Tower {
 				launchProgress = 0.999f;
 			}
 		}
+		return Hp > 0;
 	}
 
 	public void Launch () {

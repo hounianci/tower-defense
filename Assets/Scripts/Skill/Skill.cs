@@ -33,6 +33,7 @@ public class Skill
         int rangeId = int.Parse(infoStr[2]);
         this.owner = owner;
         tracker = TargetFactory.CreateTracker(rangeType);
-        tracker.Init(rangeId, owner);
+        tracker.Init(rangeId, owner, 1);
+        this.damage = damage;
     }
 }

@@ -1,57 +1,74 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameActor : MonoBehaviour
 {
+    protected int Hp{get;set;}
+    public GameBoard Board{get;set;}
+    public GameTile Tile{get;set;}
+	public int Id{get;set;}
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
-
-
-    protected int hp;
-    public int Hp{
-        get=>hp;
-        set{hp=value;}
-    }
-    GameBoard board;
-    public GameBoard Board{
-        get=>board;
-        set{board=value;}
-    }
-    GameTile tile;
-    public GameTile Tile{
-        get=>tile;
-        set{tile=value;}
-    }
-
-    public void Init(GameTile tile, GameBoard board){
-        this.tile = tile;
-        this.board = board;
+    public void Init(GameTile tile, GameBoard board, int actorId){
+        this.Tile = tile;
+        this.Board = board;
         transform.SetParent(tile.transform);
         transform.localPosition = new Vector3(0, 0, 0);
+        Id = actorId;
 		Init0();
+        Hp = 10;
     }
     List<GameActor> blockActors;
     public List<GameActor> BlockActors{
         get=>blockActors;
         set{blockActors=value;}
     }
-	TowerFactory originFactory;
-	public TowerFactory OriginFactory {
+	GameObjectFactory originFactory;
+	public GameObjectFactory OriginFactory {
 		get => originFactory;
 		set {
 			Debug.Assert(originFactory == null, "Redefined origin factory!");
 			originFactory = value;
 		}
 	}
+
+	public void Recycle () {
+        Recycle0();
+        if(this is TargetAble){
+            TargetAble ta = (TargetAble)this;
+            if(Tile.Content.OnboardTargets.ContainsKey(ta.TeamId())){
+                Tile.Content.OnboardTargets[ta.TeamId()].Remove(ta);
+            }
+        }
+        originFactory.Reclaim(this);
+    }
+
+
+	public Vector3 GetPosition(){
+		return transform.position;
+	}
+
+    public Vector2Int GetTilePosition(){
+		return new Vector2Int(Tile.X, Tile.Y);
+	}
+	public bool isAlive(){
+		return Hp>0;
+	}
 	protected virtual void Init0 () { }
-	public virtual void GameUpdate () { }
+    public void OnSelected(){
+        OnSelected0();
+    }
+    protected virtual void OnSelected0(){}
+    public void OnDisSelected(){
+        OnDisSelected0();
+    }
+    protected virtual void OnDisSelected0(){}
+	public bool GameUpdate(){
+        return Update0();
+    }
+    public virtual bool Update0(){return true;}
+    public virtual void Recycle0(){}
+    public virtual int ActorTeamId(){
+        return 0;
+    }
 }

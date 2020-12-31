@@ -18,27 +18,16 @@ public class GameBoard : MonoBehaviour {
 
 	List<GameTile> spawnPoints = new List<GameTile>();
 
-	List<GameActor> updatingContent = new List<GameActor>();
-
+	Dictionary<int, List<GameActor>> updatingContent = new Dictionary<int, List<GameActor>>();
+	public Dictionary<int, List<GameActor>> UpdateingContent{get;set;}
 	Queue<GameTile> searchFrontier = new Queue<GameTile>();
 
 	GameTileContentFactory contentFactory;
 	TowerFactory towerFactory;
 
-	Tower selectingTower;
+	public GameActor SelectingActor{get;set;}
 
 	bool showGrid, showPaths;
-
-	public Tower SelectingTower{
-		get=>selectingTower;
-		set{
-			if(selectingTower!=null){
-				selectingTower.changeShowInRange(false);
-			}
-			selectingTower=value;
-			selectingTower.changeShowInRange(true);
-		}
-	}
 
 	public bool ShowGrid {
 		get => showGrid;
@@ -74,6 +63,14 @@ public class GameBoard : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void ChangeSelectingActor(GameActor actor){
+		if(SelectingActor){
+			SelectingActor.OnDisSelected();
+		}
+		SelectingActor = actor;
+		SelectingActor.OnSelected();
 	}
 
 	public int SpawnPointCount => spawnPoints.Count;
@@ -206,9 +203,26 @@ public class GameBoard : MonoBehaviour {
 	}
 
 	public void GameUpdate () {
-		for (int i = 0; i < updatingContent.Count; i++) {
-			updatingContent[i].GameUpdate();
+		foreach(List<GameActor> team in updatingContent.Values){
+			for (int i = 0; i < team.Count; i++) {
+				if(!team[i].GameUpdate()){
+					team.RemoveAt(i);
+					i--;
+				}
+			}
 		}
+	}
+
+	public void AddActor(GameActor actor){
+		int teamId = -1;
+		if(actor is TargetAble){
+			TargetAble ta = (TargetAble) actor;
+			teamId = ta.TeamId();
+		}
+		if(!updatingContent.ContainsKey(teamId)){
+			updatingContent.Add(teamId, new List<GameActor>());
+		}
+		updatingContent[teamId].Add(actor);
 	}
 
 	public void ToggleDestination (GameTile tile) {
@@ -261,33 +275,36 @@ public class GameBoard : MonoBehaviour {
 		List<TargetAble> towers = new List<TargetAble>();
 		towers.Add(tower);
 		tile.Content.OnboardTargets.Add(1, towers);
-		selectingTower = tower;
+		SelectingActor = tower;
 		List<Enemy> enemies = tile.Content.Enemies;
 		foreach(Enemy enemy in tile.Content.Enemies){
 			tower.enemyPass(enemy);
 		}
-		updatingContent.Add(tower);
+		AddActor(tower);
 	}
 
 	public void selectingTowerChangeDirection(Direction direction){
-		if(selectingTower!=null){
-			selectingTower.changeDirection(direction);
+		if(SelectingActor!=null && SelectingActor is Tower){
+			Tower tower = (Tower) SelectingActor;
+			tower.changeDirection(direction);
 		}
 	}
 
 	public List<GameTile> targetTailes(Vector2Int trackerPos, Vector2Int rangeOffset, List<List<int>> range){
 		List<GameTile> results = new List<GameTile>();
-		int startX = Mathf.Max(0, trackerPos.x-rangeOffset.x);
-		int startY = Mathf.Max(0, trackerPos.y-rangeOffset.y);
+		int colStart = Mathf.Max(0, trackerPos.x-rangeOffset.x);
+		int rowStart = Mathf.Max(0, trackerPos.y-rangeOffset.y);
+		int colEnd = Mathf.Min(Mathf.Max(trackerPos.x-rangeOffset.x+range[0].Count, 0), size.x);
+		int rowEnd = Mathf.Min(Mathf.Max(trackerPos.y-rangeOffset.y+range.Count, 0), size.y);
 		if(range==null){
 			for(int i=0; i<tiles.Length; i++){
 				results.AddRange(tiles[i]);
 			}
 		}else{
-			for(int i=0; i<range.Count&&startX+i<size.x; i++){
-				for(int j=0; j<range[i].Count&&startY+j<size.y; j++){
-					if(range[i][j]==1||range[i][j]==3){
-						results.Add(tiles[startY+i][startX+j]);
+			for(int row=0; row<range.Count&&rowStart+row<rowEnd; row++){
+				for(int col=0; col<range[row].Count&&colStart+col<colEnd; col++){
+					if(range[row][col]==1||range[row][col]==3){
+						results.Add(tiles[rowStart+row][colStart+col]);
 					}
 				}
 			}

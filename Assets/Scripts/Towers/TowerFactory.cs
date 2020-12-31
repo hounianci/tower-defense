@@ -12,7 +12,19 @@ public class TowerFactory : GameObjectFactory
 		Tower prefab = towerPrefabs[(int)type];
 		Debug.Assert(type == prefab.TowerType, "Tower prefab at wrong index!");
 		Tower tower = Get(prefab);
-		tower.Init(tile, Game.Instance.Board);
+		int towerId = 0;
+		switch(type){
+			case TowerType.Laser:
+			towerId=1;
+			break;
+			case TowerType.Mortar:
+			towerId=2;
+			break;
+			case TowerType.Warrior:
+			towerId=3;
+			break;
+		}
+		tower.Init(tile, Game.Instance.Board, towerId);
 		return tower;
 	}
 	T Get<T> (T prefab) where T : Tower {
