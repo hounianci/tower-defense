@@ -20,7 +20,6 @@ public class GameBoard : MonoBehaviour {
 
 	Dictionary<int, List<GameActor>> updatingContent = new Dictionary<int, List<GameActor>>();
 	public Dictionary<int, List<GameActor>> UpdateingContent{get;set;}
-	Queue<GameTile> searchFrontier = new Queue<GameTile>();
 
 	GameTileContentFactory contentFactory;
 	TowerFactory towerFactory;

@@ -87,8 +87,6 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
 		}
 	}
 
-	public bool IsValidTarget => animator.CurrentClip == EnemyAnimator.Clip.Move;
-
 	public float Scale { get; private set; }
 
 
