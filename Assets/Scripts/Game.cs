@@ -95,6 +95,8 @@ public class Game : MonoBehaviour {
 
 	void Awake ()
     {
+		HunterQualityLevelConfig hConfig = new HunterQualityLevelConfig();
+		hConfig.Init();
         InitGame();
     }
 

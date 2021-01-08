@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\TargetSystem\AbstractTrack.cs" />
+     <Compile Include="Assets\Scripts\Actor\BlockerActor.cs" />
      <Compile Include="Assets\Scripts\Enemy\Enemy.cs" />
      <Compile Include="Assets\Scripts\GameBehaviorCollection.cs" />
      <Compile Include="Assets\Scripts\GameTileContentType.cs" />
@@ -51,6 +52,7 @@
      <Compile Include="Assets\Scripts\TargetSystem\factory\FileRangeTrackerFactory.cs" />
      <Compile Include="Assets\Scripts\Scenario\GameScenario.cs" />
      <Compile Include="Assets\Scripts\Enemy\EnemyFactory.cs" />
+     <Compile Include="Assets\Scripts\Actor\PositiveActor.cs" />
      <Compile Include="Assets\Scripts\Towers\WarriorTower.cs" />
      <Compile Include="Assets\Scripts\Towers\LaserTower.cs" />
      <Compile Include="Assets\Scripts\Scenario\EnemyWave.cs" />
@@ -78,8 +80,10 @@
      <Compile Include="Assets\Scripts\GameObjectFactory.cs" />
      <Compile Include="Assets\Scripts\GameTileContentFactory.cs" />
      <Compile Include="Assets\Scripts\War\Explosion.cs" />
-     <Compile Include="Assets\Scripts\Actor\PositiveActor.cs" />
-     <Compile Include="Assets\Scripts\Actor\BlockerActor.cs" />
+     <Compile Include="Assets\Scripts\Datas\AbstractConfigEntry.cs" />
+     <Compile Include="Assets\Scripts\Datas\AbstractConfig.cs" />
+     <Compile Include="Assets\Scripts\Datas\HunterQualityLevelConfig.cs" />
+     <Compile Include="Assets\Scripts\Datas\HunterQualityLevelConfigEntry.cs" />
      <None Include="Assets\3D Game Kit - Character Pack\Shaders\Alien.shader" />
      <None Include="Assets\Tower\2_Tower.txt" />
      <None Include="Assets\TargetRange\3_Range.txt" />
