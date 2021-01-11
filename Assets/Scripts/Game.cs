@@ -95,8 +95,11 @@ public class Game : MonoBehaviour {
 
 	void Awake ()
     {
-		HunterQualityLevelConfig hConfig = new HunterQualityLevelConfig();
-		hConfig.Init();
+		DataManager.Init();
+		PathConfigEntry configEntry = DataManager.GetData<PathConfigEntry>(typeof(PathConfig), 1);
+		int i = configEntry.Id;
+		SkillConfigEntry skillEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfig), 1);
+		int j = skillEntry.Id;
         InitGame();
     }
 
