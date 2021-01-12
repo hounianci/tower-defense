@@ -1,12 +1,16 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu]
 public class EnemyWave : ScriptableObject {
 
-	[SerializeField]
-	EnemySpawnSequence[] spawnSequences = {
-		new EnemySpawnSequence()
-	};
+	Stack<SpawnSequenceConfigEntry> spawnSeq ;
+
+	public EnemyWave(int waveId){
+		List<SpawnSequenceConfigEntry> seqs = DataManager.GetConfig<SpawnSequenceConfigWrapper>().GetByWaveId(waveId);
+		seqs.Sort((a,b)=>{return (int)(a.SpawnTime-b.SpawnTime);});
+		spawnSeq = new Stack<SpawnSequenceConfigEntry>(seqs);
+	}
 
 	public State Begin() => new State(this);
 
@@ -14,26 +18,17 @@ public class EnemyWave : ScriptableObject {
 	public struct State {
 
 		EnemyWave wave;
-
-		int index;
-
-		EnemySpawnSequence.State sequence;
-
+		private float progress;
 		public State (EnemyWave wave) {
 			this.wave = wave;
-			index = 0;
-			Debug.Assert(wave.spawnSequences.Length > 0, "Empty wave!");
-			sequence = wave.spawnSequences[0].Begin();
+			progress = 0;
 		}
 
 		public float Progress (float deltaTime) {
-			deltaTime = sequence.Progress(deltaTime);
-			while (deltaTime >= 0f) {
-				if (++index >= wave.spawnSequences.Length) {
-					return deltaTime;
-				}
-				sequence = wave.spawnSequences[index].Begin();
-				deltaTime = sequence.Progress(deltaTime);
+			progress += deltaTime;
+			while(wave.spawnSeq.Count>0 && wave.spawnSeq.Peek().SpawnTime<progress){
+				SpawnSequenceConfigEntry entry = wave.spawnSeq.Pop();
+				Game.SpawnEnemy(entry.EnemyId);
 			}
 			return -1f;
 		}

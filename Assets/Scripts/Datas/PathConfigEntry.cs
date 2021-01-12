@@ -1,6 +1,4 @@
 using System.IO;
-using System;
-
 public class PathConfigEntry : AbstractConfigEntry{
 	public int Id{get;set;}
 	public int PathId{get;set;}

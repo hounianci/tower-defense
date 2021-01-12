@@ -1,6 +1,4 @@
 using System.IO;
-using System;
-
 public class SkillConfigEntry : AbstractConfigEntry{
 	public int Id{get;set;}
 	public int RangeType{get;set;}

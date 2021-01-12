@@ -5,15 +5,30 @@ using System;
 public class DataManager
 {
 
-    static Dictionary<Type, AbstractConfig> Datas = new Dictionary<Type, AbstractConfig>();
+    private static Dictionary<Type, AbstractConfig> Datas = new Dictionary<Type, AbstractConfig>();
 
     public static void Init(){
-        PathConfig pathConfig = new PathConfig();
-        pathConfig.Init();
-        Datas.Add(typeof(PathConfig), pathConfig);
-        SkillConfig skillConfig = new SkillConfig();
-        skillConfig.Init();
-        Datas.Add(typeof(SkillConfig), skillConfig);
+        AddConfig(new PathConfig());
+        AddConfig(new SkillConfig());
+        AddConfig(new EnemyConfig());
+        AddConfig(new ScenarioPointConfigWrapper());
+        AddConfig(new SpawnSequenceConfigWrapper());
+        AddConfig(new SpawnWaveConfig());
+        AddConfig(new TowerConfig());
+    }
+
+    public static void AddConfig(AbstractConfig config){
+        config.Init();
+        Type type = config.GetType();
+        Datas.Add(type, config);
+        if(type.BaseType!=typeof(AbstractConfig)){
+            type = type.BaseType;
+            Datas.Add(type, config);
+        }
+    }
+
+    public static T GetConfig<T> () where T : AbstractConfig{
+        return (T)Datas[typeof(T)];
     }
 
     public static T GetData<T>(Type type, object key) where T : AbstractConfigEntry{

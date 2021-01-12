@@ -562,7 +562,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a8c46f22f8c47a1a14e9657bbb981b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapId: 2
+  mapId: 1
   boardSize: {x: 11, y: 11}
   board: {fileID: 495667348}
   tileContentFactory: {fileID: 11400000, guid: 50b576fe36976479e97d482d8067eae9, type: 2}

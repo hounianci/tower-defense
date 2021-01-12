@@ -26,11 +26,10 @@ public class Skill
     }
     public void Init(int skillId, GameActor owner){
         this.skillId=skillId;
-        string skillInfo = FileUtil.readFile(string.Format("Assets/Skill/{0}_Skill.txt", skillId));
-        string[] infoStr = skillInfo.Split(',');
-        int rangeType = int.Parse(infoStr[0]);
-        int damage = int.Parse(infoStr[1]);
-        int rangeId = int.Parse(infoStr[2]);
+        SkillConfigEntry skillConfigEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfigEntry), skillId);
+        int rangeType = skillConfigEntry.RangeType;
+        int damage = skillConfigEntry.Damage;
+        int rangeId = skillConfigEntry.RangeId;
         this.owner = owner;
         tracker = TargetFactory.CreateTracker(rangeType);
         tracker.Init(rangeId, owner, 1);

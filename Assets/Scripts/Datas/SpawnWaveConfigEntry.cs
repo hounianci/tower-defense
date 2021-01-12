@@ -1,21 +1,15 @@
 using System.IO;
-using System;
-
 public class SpawnWaveConfigEntry : AbstractConfigEntry{
 	public int Id{get;set;}
-	public int MapId{get;set;}
-	public int SpawnId{get;set;}
-	public float SpawnTime{get;set;}
-	public int EnemyId{get;set;}
-	public int PathId{get;set;}
+	public int ScenarioId{get;set;}
+	public int TriggerType{get;set;}
+	public int TriggerCondition{get;set;}
 
     protected override void Init0(BinaryReader br){
 		Id= ReadInt32(br);
-		MapId= ReadInt32(br);
-		SpawnId= ReadInt32(br);
-		SpawnTime = ReadFloat(br);
-		EnemyId= ReadInt32(br);
-		PathId= ReadInt32(br);
+		ScenarioId= ReadInt32(br);
+		TriggerType= ReadInt32(br);
+		TriggerCondition= ReadInt32(br);
 
     }
 }

@@ -41,8 +41,6 @@ public class Game : MonoBehaviour {
 	int playerHealth;
 
     ArrayList initWall = new ArrayList();
-    ArrayList initSpwan = new ArrayList();
-    ArrayList initDestination = new ArrayList();
     
     GameScenario.State activeScenario;
 
@@ -61,13 +59,13 @@ public class Game : MonoBehaviour {
 	public static void EnemyReachedDestination () {
 		instance.playerHealth -= 1;
 	}
-
-	public static void SpawnEnemy (EnemyFactory factory, EnemyType type) {
+	static EnemyFactory factory = new EnemyFactory();
+	public static void SpawnEnemy (int enemyId) {
 		GameTile spawnPoint = instance.board.GetSpawnPoint(
             UnityEngine.Random.Range(0, instance.board.SpawnPointCount)
 		);
-		Enemy enemy = factory.Get(type);
-		enemy.Init(spawnPoint, instance.board, (int)type);
+		Enemy enemy = factory.Get(enemyId);
+		enemy.Init(spawnPoint, instance.board, enemyId);
 		enemy.Board = instance.Board;
 		enemy.SpawnOn(spawnPoint);
 		enemy.OriginFactory = factory;
@@ -96,28 +94,29 @@ public class Game : MonoBehaviour {
 	void Awake ()
     {
 		DataManager.Init();
-		PathConfigEntry configEntry = DataManager.GetData<PathConfigEntry>(typeof(PathConfig), 1);
-		int i = configEntry.Id;
-		SkillConfigEntry skillEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfig), 1);
-		int j = skillEntry.Id;
+		// SkillConfigEntry skillConfigEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfig), 1);
+		// PathConfigEntry pathConfigEntry = DataManager.GetData<PathConfigEntry>(typeof(PathConfig), 1);
         InitGame();
     }
 
     void InitGame()
     {
-        ReadFile();
+        LoadMapTile();
         playerHealth = startingPlayerHealth;
         board.Initialize(boardSize, tileContentFactory, towerFactory);
-        foreach (Vector2Int v in initSpwan)
-        {
-            GameTile tile = board.GetTile(v.x, v.y);
-            board.ToggleSpawnPoint(tile);
-        }
-        foreach (Vector2Int v in initDestination)
-        {
-            GameTile tile = board.GetTile(v.x, v.y);
-            board.ToggleDestination(tile);
-        }
+		List<ScenarioPointConfigEntry> points = DataManager.GetConfig<ScenarioPointConfigWrapper>().GetByScenarioId(mapId);
+		foreach(ScenarioPointConfigEntry point in points){
+			switch(point.Type){
+				case 1:
+            	GameTile spawnTile = board.GetTile(point.X, point.Y);
+           		board.ToggleSpawnPoint(spawnTile);
+				break;
+				case 2:
+            	GameTile desTile = board.GetTile(point.X, point.Y);
+            	board.ToggleDestination(desTile);
+				break;
+			}
+		}
         foreach (Vector2Int v in initWall)
         {
             GameTile tile = board.GetTile(v.x, v.y);
@@ -234,7 +233,7 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-    void ReadFile()
+    void LoadMapTile()
     {
 		List<List<int>> matrix = FileUtil.readFileMatrix(string.Format("Assets/Map/{0}.txt", mapId));
 		matrix = FileUtil.matrixTurnAround(matrix);
@@ -245,12 +244,6 @@ public class Game : MonoBehaviour {
 				switch (colContent){
 					case 1:
 						initWall.Add(new Vector2Int(col, row));
-					break;
-					case 2:
-                        initSpwan.Add(new Vector2Int(col, row));
-					break;
-					case 3:
-                        initDestination.Add(new Vector2Int(col, row));
 					break;
 				}
 			}

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 public class SkillConfig : AbstractConfig{
     public override object GetKey(AbstractConfigEntry t)
     {

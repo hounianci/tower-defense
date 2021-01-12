@@ -1,6 +1,4 @@
 using System.IO;
-using System;
-
 public class TowerConfigEntry : AbstractConfigEntry{
 	public int Id{get;set;}
 	public int[] SkillList{get;set;}
