@@ -28,9 +28,7 @@ public class Game : MonoBehaviour {
 
 	[SerializeField]
 	WarFactory warFactory = default;
-
-	[SerializeField]
-	GameScenario scenario = default;
+	GameScenario scenario;
 
 	[SerializeField, Range(0, 100)]
 	int startingPlayerHealth = 10;
@@ -59,19 +57,11 @@ public class Game : MonoBehaviour {
 	public static void EnemyReachedDestination () {
 		instance.playerHealth -= 1;
 	}
-	static EnemyFactory factory = new EnemyFactory();
-	public static void SpawnEnemy (int enemyId) {
-		GameTile spawnPoint = instance.board.GetSpawnPoint(
-            UnityEngine.Random.Range(0, instance.board.SpawnPointCount)
-		);
-		Enemy enemy = factory.Get(enemyId);
-		enemy.Init(spawnPoint, instance.board, enemyId);
-		enemy.Board = instance.Board;
-		enemy.SpawnOn(spawnPoint);
-		enemy.OriginFactory = factory;
-		enemy.InitPath(instance.mapId);
-		instance.Board.AddActor(enemy);
-		enemy.transform.parent = instance.board.transform;
+	EnemyFactory factory;
+	public static void SpawnEnemy (int enemyId, int pathId, int spawnId) {
+		GameTile spawnPoint = instance.board.GetSpawnPoint(spawnId);
+		Enemy enemy = instance.factory.Get(enemyId);
+		enemy.Init(spawnPoint, instance.board, enemyId, instance.factory, new object[]{pathId});
 		enemy.PrepareIntro();
 	}
 
@@ -93,6 +83,7 @@ public class Game : MonoBehaviour {
 
 	void Awake ()
     {
+		factory = new EnemyFactory();
 		DataManager.Init();
 		// SkillConfigEntry skillConfigEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfig), 1);
 		// PathConfigEntry pathConfigEntry = DataManager.GetData<PathConfigEntry>(typeof(PathConfig), 1);
@@ -109,7 +100,7 @@ public class Game : MonoBehaviour {
 			switch(point.Type){
 				case 1:
             	GameTile spawnTile = board.GetTile(point.X, point.Y);
-           		board.ToggleSpawnPoint(spawnTile);
+           		board.ToggleSpawnPoint(point.Id, spawnTile);
 				break;
 				case 2:
             	GameTile desTile = board.GetTile(point.X, point.Y);
@@ -123,6 +114,7 @@ public class Game : MonoBehaviour {
             board.ToggleWall(tile);
         }
         board.ShowGrid = true;
+		scenario = new GameScenario(mapId);
         activeScenario = scenario.Begin();
     }
 
@@ -145,10 +137,6 @@ public class Game : MonoBehaviour {
 		if (Input.GetMouseButtonDown(0)) {
 			HandleTouch();
 		}
-		else if (Input.GetMouseButtonDown(1)) {
-			HandleAlternativeTouch();
-		}
-
 		if (Input.GetKeyDown(KeyCode.V)) {
 			board.ShowPaths = !board.ShowPaths;
 		}
@@ -195,26 +183,16 @@ public class Game : MonoBehaviour {
 			BeginNewGame();
 		}
 
-		if (!activeScenario.Progress() && (board.UpdateingContent.ContainsKey(2)&&board.UpdateingContent[2].Count==0)) {
-			Debug.Log("Victory!");
-			BeginNewGame();
-			activeScenario.Progress();
+		if (!activeScenario.Progress()) {
+			if((board.UpdateingContent.ContainsKey(2)&&board.UpdateingContent[2].Count==0)){
+				Debug.Log("Victory!");
+				BeginNewGame();
+				activeScenario.Progress();
+			}
 		}
 		Physics.SyncTransforms();
 		board.GameUpdate();
 		nonEnemies.GameUpdate();
-	}
-
-	void HandleAlternativeTouch () {
-		GameTile tile = board.GetTile(TouchRay);
-		if (tile != null) {
-			if (Input.GetKey(KeyCode.LeftShift)) {
-				board.ToggleDestination(tile);
-			}
-			else {
-				board.ToggleSpawnPoint(tile);
-			}
-		}
 	}
 
 	void HandleTouch () {

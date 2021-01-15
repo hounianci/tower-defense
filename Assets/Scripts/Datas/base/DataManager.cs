@@ -8,12 +8,12 @@ public class DataManager
     private static Dictionary<Type, AbstractConfig> Datas = new Dictionary<Type, AbstractConfig>();
 
     public static void Init(){
-        AddConfig(new PathConfig());
+        AddConfig(new PathConfigWrapper());
         AddConfig(new SkillConfig());
         AddConfig(new EnemyConfig());
         AddConfig(new ScenarioPointConfigWrapper());
         AddConfig(new SpawnSequenceConfigWrapper());
-        AddConfig(new SpawnWaveConfig());
+        AddConfig(new SpawnWaveConfigWrapper());
         AddConfig(new TowerConfig());
     }
 

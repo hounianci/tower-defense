@@ -6,9 +6,9 @@ public class LaserTower : Tower {
 
 	Vector3 laserBeamScale;
 
-    protected override void Init0()
+    protected override void Init0(object[] payloads)
     {
-		base.Init0();
+		base.Init0(payloads);
 		laserBeamScale = laserBeam.localScale;
     }
 

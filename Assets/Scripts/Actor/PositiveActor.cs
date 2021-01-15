@@ -2,28 +2,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PositiveActor : GameActor
+public abstract class PositiveActor : GameActor
 {
 	protected List<TargetAble> targets;
 	public Skill CurrentSkill{get;set;}
 	public Skill[] SkillQueue{get;set;}
 	public int SkillQueueIndex{get;set;}
 	public float ShootProgress{get;set;}
+	public float StartAttackTime{get;set;}
+	public float LastAttackTime{get;set;}
 	public float ShootInterval{get;set;}
+	public float ShootDuration{get;set;}
+    public bool HaveTarget => targets==null || targets.Count==0 || !targets[0].isAlive();
 
 
-    protected override void Init0()
+    protected override void Init0(object[] payloads)
     {		
-		//TODO
-		ShootInterval = 2;
-        base.Init0();
+        base.Init0(payloads);
+		ShootInterval = GetInterval();
     }
+
+	protected abstract int GetInterval();
 
     //寻找目标
     
 
 	//寻找目标
-	protected bool AcquireTarget () {
+	public bool AcquireTarget () {
         if(CurrentSkill==null){
             return false;
         }
@@ -54,7 +59,7 @@ public class PositiveActor : GameActor
 	}
 
 	//追踪目标
-	protected bool TrackTarget () {
+	public bool TrackTarget () {
 		if (targets==null || targets.Count==0 || !targets[0].isAlive()) {
 			return false;
 		}
@@ -81,16 +86,6 @@ public class PositiveActor : GameActor
     
 
 	public override bool Update0 () {
-		ShootProgress+=Time.deltaTime;
-		if (TrackTarget() || AcquireTarget()) {
-			if(ShootProgress>=ShootInterval){
-				ShootProgress = 0;
-				Shoot();
-			}
-		}
-		else {
-            loseTarget();
-		}
 		return Hp > 0;
 	}
 
@@ -122,7 +117,7 @@ public class PositiveActor : GameActor
 
     }
 
-	protected virtual void loseTarget(){
+	public virtual void loseTarget(){
 
 	}
 	protected virtual void lockTarget(){

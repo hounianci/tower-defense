@@ -20,9 +20,9 @@ public class MortarTower : Tower {
 
 	float launchProgress;
 
-    protected override void Init0()
+    protected override void Init0(object[] payloads)
     {
-		base.Init0();
+		base.Init0(payloads);
     }
 
 	public override bool Update0 () {

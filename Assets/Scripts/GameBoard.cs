@@ -16,7 +16,7 @@ public class GameBoard : MonoBehaviour {
 
 	GameTile[][] tiles;
 
-	List<GameTile> spawnPoints = new List<GameTile>();
+	Dictionary<int, GameTile> spawnPoints = new Dictionary<int, GameTile>();
 
 	Dictionary<int, List<GameActor>> updatingContent = new Dictionary<int, List<GameActor>>();
 	public Dictionary<int, List<GameActor>> UpdateingContent{get;set;}
@@ -80,6 +80,7 @@ public class GameBoard : MonoBehaviour {
 		this.size = size;
 		this.contentFactory = contentFactory;
 		this.towerFactory = towerFactory;
+		UpdateingContent = new Dictionary<int, List<GameActor>>();
 		ground.localScale = new Vector3(size.x, size.y, 1f);
 
 		Vector2 offset = new Vector2(
@@ -253,17 +254,9 @@ public class GameBoard : MonoBehaviour {
 		}
 	}
 
-	public void ToggleSpawnPoint (GameTile tile) {
-		if (tile.Content.Type == GameTileContentType.SpawnPoint) {
-			if (spawnPoints.Count > 1) {
-				spawnPoints.Remove(tile);
-				tile.Content = contentFactory.Get(GameTileContentType.Empty);
-			}
-		}
-		else if (tile.Content.Type == GameTileContentType.Empty) {
-			tile.Content = contentFactory.Get(GameTileContentType.SpawnPoint);
-			spawnPoints.Add(tile);
-		}
+	public void ToggleSpawnPoint (int spawnId, GameTile tile) {
+		tile.Content = contentFactory.Get(GameTileContentType.SpawnPoint);
+		spawnPoints.Add(spawnId, tile);
 	}
 
 	public void ToggleTower (GameTile tile, TowerType towerType) {

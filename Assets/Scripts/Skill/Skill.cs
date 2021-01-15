@@ -26,7 +26,7 @@ public class Skill
     }
     public void Init(int skillId, GameActor owner){
         this.skillId=skillId;
-        SkillConfigEntry skillConfigEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfigEntry), skillId);
+        SkillConfigEntry skillConfigEntry = DataManager.GetData<SkillConfigEntry>(typeof(SkillConfig), skillId);
         int rangeType = skillConfigEntry.RangeType;
         int damage = skillConfigEntry.Damage;
         int rangeId = skillConfigEntry.RangeId;

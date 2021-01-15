@@ -5,7 +5,8 @@ using Slider;
 public class EnemyFactory : GameObjectFactory {
 	public Enemy Get (int enemyId) {
 		EnemyConfigEntry enemyConfigEntry = DataManager.GetData<EnemyConfigEntry>(typeof(EnemyConfig), enemyId);
-		Enemy enemyPrefab = (Enemy)Resources.Load("Prefabs/Character");
+		GameObject gameObject = (GameObject)Resources.Load("Prefabs/Enemies/"+enemyConfigEntry.Model);
+		Enemy enemyPrefab = gameObject.GetComponent<Enemy>();
 		Enemy instance = CreateGameObjectInstance(enemyPrefab);
 		instance.OriginFactory = this;
 		instance.Initialize(

@@ -38,27 +38,44 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
 	float pathOffset;
 	float speed;
 
-	protected override void Init0 () { 
-		base.Init0();
+	EnemyConfigEntry enemyConfig;
+
+	protected override void Init0 (object[] payloads) { 
+		enemyConfig = DataManager.GetData<EnemyConfigEntry>(typeof(EnemyConfig), Id);
+		SpawnOn(Tile);
+		base.Init0(payloads);
+		InitPath((int)payloads[0]);
 		SkillQueue = new Skill[1];
 		Skill skill = new Skill();
 		skill.Init(2, this);
 		SkillQueue[0] = skill; 
 		ChangeSkill();
 	} 
+
+    protected override void InitState()
+    {
+		States.Add(ActorStateType.Idle, new List<ActorState>());
+		States[ActorStateType.Idle].Add(new AttackState());
+		States[ActorStateType.Idle].Add(new MoveState());
+		States.Add(ActorStateType.Attack, new List<ActorState>());
+		States[ActorStateType.Attack].Add(new IdleState());
+		States[ActorStateType.Attack].Add(new MoveState());
+    }
 	public int ApplyDamage(float damage){
         Hp -= (int)damage;
 		return Hp;
 	}
 
-	public void InitPath(int mapId){
-		string pathPointsStr = FileUtil.readFile(string.Format("Assets/Path/Map{0}/{1}Path.txt", mapId, id));
-		string[] pathPoints = pathPointsStr.Split('|');
+	protected override int GetInterval(){
+		return enemyConfig.Interval;
+	} 
+
+	public void InitPath(int pathId){
+		List<PathConfigEntry> paths = DataManager.GetConfig<PathConfigWrapper>().GetByPathId(pathId);
 		List<int[]> mainPoints = new List<int[]>();
-		foreach(string pathPointStr in pathPoints){
-			string[] points = pathPointStr.Split(',');
-			int x = int.Parse(points[1]);
-			int y = int.Parse(points[0]);
+		foreach(PathConfigEntry path in paths){
+			int x = path.X;
+			int y = path.Y;
 			mainPoints.Add(new int[]{y, x});
 		}
 		path = Board.FindEnemyPath(new int[]{tileFrom.Y, tileFrom.X}, mainPoints);
@@ -68,6 +85,10 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
     public override int ActorTeamId()
     {
 		return TeamId();
+    }
+    public override void ExecuteState(ActorState state, int deltaTime)
+    {
+		state.ExecuteEnemy(this, deltaTime);
     }
 
 	public Tower BlockingTower{get;set;}

@@ -8,7 +8,7 @@ public class EnemyWave : ScriptableObject {
 
 	public EnemyWave(int waveId){
 		List<SpawnSequenceConfigEntry> seqs = DataManager.GetConfig<SpawnSequenceConfigWrapper>().GetByWaveId(waveId);
-		seqs.Sort((a,b)=>{return (int)(a.SpawnTime-b.SpawnTime);});
+		seqs.Sort((a,b)=>{return (int)(b.SpawnTime-a.SpawnTime);});
 		spawnSeq = new Stack<SpawnSequenceConfigEntry>(seqs);
 	}
 
@@ -24,13 +24,13 @@ public class EnemyWave : ScriptableObject {
 			progress = 0;
 		}
 
-		public float Progress (float deltaTime) {
+		public bool Progress (float deltaTime) {
 			progress += deltaTime;
 			while(wave.spawnSeq.Count>0 && wave.spawnSeq.Peek().SpawnTime<progress){
 				SpawnSequenceConfigEntry entry = wave.spawnSeq.Pop();
-				Game.SpawnEnemy(entry.EnemyId);
+				Game.SpawnEnemy(entry.EnemyId, entry.PathId, entry.SpawnId);
 			}
-			return -1f;
+			return wave.spawnSeq.Count==0;
 		}
 	}
 }

@@ -24,7 +24,7 @@ public class TowerFactory : GameObjectFactory
 			towerId=3;
 			break;
 		}
-		tower.Init(tile, Game.Instance.Board, towerId);
+		tower.Init(tile, Game.Instance.Board, towerId, this, null);
 		return tower;
 	}
 	T Get<T> (T prefab) where T : Tower {

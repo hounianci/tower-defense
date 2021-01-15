@@ -1,8 +1,20 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu]
 public class GameScenario : ScriptableObject {
-	EnemyWave[] waves = {};
+	
+	public int ScenarioId{get;set;}
+	List<SpawnWaveConfigEntry> waves ;
+	EnemyWave currentWave ;
+
+	public GameScenario(int scenarioId){
+		waves = DataManager.GetConfig<SpawnWaveConfigWrapper>().GetByScenarioId(scenarioId);
+		ScenarioId = scenarioId;
+		if(waves.Count > 0){
+			currentWave = new EnemyWave(waves[0].Id);
+		}
+	}
 
 	public State Begin () => new State(this);
 
@@ -21,18 +33,17 @@ public class GameScenario : ScriptableObject {
 			this.scenario = scenario;
 			index = 0;
 			timeScale = 1f;
-			Debug.Assert(scenario.waves.Length > 0, "Empty scenario!");
-			wave = scenario.waves[0].Begin();
+			wave = scenario.currentWave.Begin();
 		}
 
 		public bool Progress () {
-			float deltaTime = wave.Progress(timeScale * Time.deltaTime);
-			while (deltaTime >= 0f) {
-				if (++index >= scenario.waves.Length) {
+			bool isFinish = wave.Progress(timeScale * Time.deltaTime);
+			while (isFinish) {
+				if (++index >= scenario.waves.Count) {
 					return false;
 				}
-				wave = scenario.waves[index].Begin();
-				deltaTime = wave.Progress(deltaTime);
+				wave = new EnemyWave(scenario.waves[index].Id).Begin();
+				isFinish = wave.Progress(0);
 			}
 			return true;
 		}
