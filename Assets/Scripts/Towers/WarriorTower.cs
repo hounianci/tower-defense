@@ -8,13 +8,4 @@ public class WarriorTower : Tower
 		return 5;
 	}
 
-
-    public override bool Update0()
-    {
-		if(blockingEnemy.Count != 0){
-			this.transform.LookAt(blockingEnemy[0].transform.position);
-		}		
-		return base.Update0();
-    }
-
 }

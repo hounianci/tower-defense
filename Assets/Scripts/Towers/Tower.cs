@@ -5,7 +5,7 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 
 
 	public abstract TowerType TowerType { get; }
-	public List<Enemy> blockingEnemy = new List<Enemy>();
+	private List<Enemy> blockingEnemy = new List<Enemy>();
 	public Direction Direction{get;set;}
 	public List<Enemy> BlockingEnemy{get;}
 	TowerConfigEntry towerConfig;
@@ -20,17 +20,21 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 		return towerConfig.Interval;
     }
 
-    public override void ExecuteState(ActorState state, int deltaTime)
+    public override void ExecuteState(ActorState state, float deltaTime)
     {
 		state.ExecuteTower(this, deltaTime);
+    }
+    public override void EnterState(ActorState state)
+    {
+		state.EnterTower(this);
     }
 
     protected override void InitState()
     {
-		States.Add(ActorStateType.Idle, new List<ActorState>());
-		States[ActorStateType.Idle].Add(new AttackState());
-		States.Add(ActorStateType.Attack, new List<ActorState>());
-		States[ActorStateType.Attack].Add(new IdleState());
+		StatesTurns.Add(ActorStateType.Idle, new List<ActorState>());
+		StatesTurns[ActorStateType.Idle].Add(new AttackState());
+		StatesTurns.Add(ActorStateType.Attack, new List<ActorState>());
+		StatesTurns[ActorStateType.Attack].Add(new IdleState());
     }
 	protected override void Init0(object[] payloads){
 		towerConfig = DataManager.GetData<TowerConfigEntry>(typeof(TowerConfig), Id);
@@ -47,20 +51,6 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 		ChangeShowInRange(true);
 		Hp = 10;
 	}
-
-	public override bool Update0 () {
-		if(Hp<=0){
-			foreach(Enemy enemy in blockingEnemy){
-				enemy.BlockingTower = null;
-			}
-			Recycle();
-			return false;
-		}else{
-			return base.Update0();
-		}
-	}
-
-
 	protected virtual int blockNum(){
 		return 0;
 	}

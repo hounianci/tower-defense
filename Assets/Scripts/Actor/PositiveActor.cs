@@ -83,12 +83,6 @@ public abstract class PositiveActor : GameActor
 		ChangeShowInRange(false);
     }
 
-    
-
-	public override bool Update0 () {
-		return Hp > 0;
-	}
-
     public void Shoot(){
 		if(targets==null||targets.Count==0){
 			return;

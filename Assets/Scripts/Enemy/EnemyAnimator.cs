@@ -23,7 +23,7 @@ public struct EnemyAnimator {
 
 	bool hasAppearClip, hasDisappearClip;
 
-	public Clip CurrentClip { get; private set; }
+	private Clip CurrentClip;
 
 	public bool IsDone => GetPlayable(CurrentClip).IsDone();
 
@@ -31,7 +31,10 @@ public struct EnemyAnimator {
 	public bool IsValid => graph.IsValid();
 #endif
 
-	public void Configure (Animator animator, EnemyAnimationConfig config) {
+	public bool flag;
+
+	public EnemyAnimator Configure (Animator animator, EnemyAnimationConfig config) {
+		flag = true;
 		hasAppearClip = config.Appear;
 		hasDisappearClip = config.Disappear;
 
@@ -43,22 +46,26 @@ public struct EnemyAnimator {
 
 		var clip = AnimationClipPlayable.Create(graph, config.Move);
 		clip.Pause();
-		mixer.ConnectInput((int)Clip.Move, clip, 0);
+		int val = (int)Clip.Move;
+		mixer.ConnectInput(val, clip, 0);
 
 		clip = AnimationClipPlayable.Create(graph, config.Intro);
 		clip.SetDuration(config.Intro.length);
 		clip.Pause();
-		mixer.ConnectInput((int)Clip.Intro, clip, 0);
+		val = (int)Clip.Intro;
+		mixer.ConnectInput(val, clip, 0);
 
 		clip = AnimationClipPlayable.Create(graph, config.Outro);
 		clip.SetDuration(config.Outro.length);
 		clip.Pause();
-		mixer.ConnectInput((int)Clip.Outro, clip, 0);
+		val = (int)Clip.Outro;
+		mixer.ConnectInput(val, clip, 0);
 
 		clip = AnimationClipPlayable.Create(graph, config.Dying);
 		clip.SetDuration(config.Dying.length);
 		clip.Pause();
-		mixer.ConnectInput((int)Clip.Dying, clip, 0);
+		val = (int)Clip.Dying;
+		mixer.ConnectInput(val, clip, 0);
 
 		if (hasAppearClip) {
 			clip = AnimationClipPlayable.Create(graph, config.Appear);
@@ -76,6 +83,7 @@ public struct EnemyAnimator {
 
 		var output = AnimationPlayableOutput.Create(graph, "Enemy", animator);
 		output.SetSourcePlayable(mixer);
+		return this;
 	}
 
 #if UNITY_EDITOR
@@ -156,18 +164,10 @@ public struct EnemyAnimator {
 
 	public void PlayOutro () {
 		BeginTransition(Clip.Outro);
-
-		if (hasDisappearClip) {
-			PlayDisappearFor(Clip.Outro);
-		}
 	}
 
 	public void PlayDying () {
 		BeginTransition(Clip.Dying);
-
-		if (hasDisappearClip) {
-			PlayDisappearFor(Clip.Dying);
-		}
 	}
 
 	public void Stop () {
@@ -185,18 +185,12 @@ public struct EnemyAnimator {
 		GetPlayable(nextClip).Play();
 	}
 
-	void PlayDisappearFor (Clip otherClip) {
-		var clip = GetPlayable(Clip.Disappear);
-		clip.Play();
-		clip.SetDelay(GetPlayable(otherClip).GetDuration() - clip.GetDuration());
-		SetWeight(Clip.Disappear, 1f);
-	}
-
 	Playable GetPlayable (Clip clip) {
 		return mixer.GetInput((int)clip);
 	}
 
 	void SetWeight (Clip clip, float weight) {
-		mixer.SetInputWeight((int)clip, weight);
+		int val = (int)clip;
+		mixer.SetInputWeight(val, weight);
 	}
 }

@@ -1,3 +1,3 @@
 public enum ActorStateType {
-    Idle, Move, Attack
+    Idle, Move, Attack, Outro, Intro
 }

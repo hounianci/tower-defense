@@ -28,7 +28,7 @@ public class LaserTower : Tower {
 			turret.localPosition + 0.5f * d * laserBeam.forward;
 	}
 
-    protected override void loseTarget()
+    public override void loseTarget()
     {
 		laserBeam.localScale = Vector3.zero;
 		laserBeam.gameObject.SetActive(false);

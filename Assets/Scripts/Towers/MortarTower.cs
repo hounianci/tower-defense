@@ -25,20 +25,6 @@ public class MortarTower : Tower {
 		base.Init0(payloads);
     }
 
-	public override bool Update0 () {
-		launchProgress += shotsPerSecond * Time.deltaTime;
-		while (launchProgress >= 1f) {
-			if (AcquireTarget()) {
-				Launch();
-				launchProgress -= 1f;
-			}
-			else {
-				launchProgress = 0.999f;
-			}
-		}
-		return Hp > 0;
-	}
-
 	public void Launch () {
 		TargetAble target = targets[0];
 		Vector3 launchPoint = mortar.position;

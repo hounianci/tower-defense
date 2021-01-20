@@ -4,15 +4,19 @@ using UnityEngine;
 
 public abstract class GameActor : MonoBehaviour
 {
+    static int idGen = 1;
+    public int identity;
+    public bool NeedRemoveFromUpdate{get;set;}
     protected int Hp{get;set;}
     public GameBoard Board{get;set;}
     public GameTile Tile{get;set;}
 	public int Id{get;set;}
 
-    public Dictionary<ActorStateType, List<ActorState>> States = new Dictionary<ActorStateType, List<ActorState>>();
+    public Dictionary<ActorStateType, List<ActorState>> StatesTurns = new Dictionary<ActorStateType, List<ActorState>>();
     public ActorState CurrentState{get;set;}
 
     public void Init(GameTile tile, GameBoard board, int actorId, GameObjectFactory factory, object[] payloads){
+        identity = idGen++;
         this.Tile = tile;
         this.Board = board;
 		this.OriginFactory = factory;
@@ -41,20 +45,24 @@ public abstract class GameActor : MonoBehaviour
 		}
 	}
 
-    public abstract void ExecuteState(ActorState state, int deltaTime);
+    public abstract void ExecuteState(ActorState state, float deltaTime);
+    public abstract void EnterState(ActorState state);
     public void TurnNextState(){
-        CurrentState.Exit(this);
         ActorState nextState = null;
-        foreach(ActorState state in States[CurrentState.GetActorType()]){
+        foreach(ActorState state in StatesTurns[CurrentState.GetActorType()]){
             if(state.CanEnter(this)){
                 nextState = state;
                 break;
             }
         }
         if(nextState!=null){
-            CurrentState = nextState;
-            CurrentState.Enter(this);
+            TurnState(nextState);
         }
+    }
+    public void TurnState(ActorState state){
+        CurrentState.Exit(this);
+        CurrentState = state;
+        CurrentState.Enter(this);
     }
 
 	public void Recycle () {
@@ -67,8 +75,6 @@ public abstract class GameActor : MonoBehaviour
         }
         originFactory.Reclaim(this);
     }
-
-
 	public Vector3 GetPosition(){
 		return transform.position;
 	}
@@ -89,9 +95,16 @@ public abstract class GameActor : MonoBehaviour
     }
     protected virtual void OnDisSelected0(){}
 	public bool GameUpdate(){
-        return Update0();
+        CurrentState.Execute(this, Time.deltaTime);
+        bool alive = Update0();
+        if(!alive && CurrentState.GetActorType()!=ActorStateType.Outro){
+            TurnState(new OutroState());
+        }
+        return alive&&!NeedRemoveFromUpdate;
     }
-    public virtual bool Update0(){return true;}
+    public virtual bool Update0(){
+        return isAlive();
+    }
     public virtual void Recycle0(){}
     public virtual int ActorTeamId(){
         return 0;
