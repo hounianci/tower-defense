@@ -8,7 +8,7 @@ public class MoveState : ActorState
         Enemy enemy = (Enemy) actor;
 		if (enemy.TileTo == null) {
 			Game.EnemyReachedDestination();
-			enemy.TurnState(new OutroState());
+			enemy.TurnState(ActorStateType.Outro);
 			enemy.TargetPointCollider.enabled = false;
 		}else{
 		    enemy.Progress += Time.deltaTime * enemy.ProgressFactor;

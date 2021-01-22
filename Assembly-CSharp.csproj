@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\Enemy\EnemyAnimationConfig.cs" />
      <Compile Include="Assets\Scripts\TargetSystem\factory\FileRangeTrackerFactory.cs" />
      <Compile Include="Assets\Scripts\Datas\wrapper\ScenarioPointConfigWrapper.cs" />
+     <Compile Include="Assets\Scripts\Skill\SkillTest.cs" />
      <Compile Include="Assets\Scripts\Scenario\GameScenario.cs" />
      <Compile Include="Assets\Scripts\Datas\wrapper\PathConfigWrapper.cs" />
      <Compile Include="Assets\Scripts\Datas\SkillConfigEntry.cs" />

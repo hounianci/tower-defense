@@ -13,7 +13,7 @@ public abstract class PositiveActor : GameActor
 	public float LastAttackTime{get;set;}
 	public float ShootInterval{get;set;}
 	public float ShootDuration{get;set;}
-    public bool HaveTarget => targets==null || targets.Count==0 || !targets[0].isAlive();
+    public bool HaveTarget => targets!=null && targets.Count!=0 && targets[0].isAlive();
 
 
     protected override void Init0(object[] payloads)
@@ -96,6 +96,7 @@ public abstract class PositiveActor : GameActor
         }
         Shoot0();
 		ChangeSkill();
+		ShootProgress = 0;
     }
 	protected void ChangeSkill(){
 		CurrentSkill = SkillQueue[SkillQueueIndex%SkillQueue.Length];

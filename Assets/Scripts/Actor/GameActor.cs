@@ -12,8 +12,10 @@ public abstract class GameActor : MonoBehaviour
     public GameTile Tile{get;set;}
 	public int Id{get;set;}
 
-    public Dictionary<ActorStateType, List<ActorState>> StatesTurns = new Dictionary<ActorStateType, List<ActorState>>();
+    public Dictionary<ActorStateType, List<ActorStateType>> StatusTurns = new Dictionary<ActorStateType, List<ActorStateType>>();
+    public Dictionary<ActorStateType, ActorState> AllStatus = new Dictionary<ActorStateType, ActorState>();
     public ActorState CurrentState{get;set;}
+	Dictionary<ActorStateType, int> StateRank;
 
     public void Init(GameTile tile, GameBoard board, int actorId, GameObjectFactory factory, object[] payloads){
         identity = idGen++;
@@ -25,9 +27,19 @@ public abstract class GameActor : MonoBehaviour
         Id = actorId;
 		Init0(payloads);
         InitState();
-        Hp = 10;
+        InitStateRank();
         board.AddActor(this);
 		transform.parent = board.transform;
+
+    }
+
+    protected void InitStateRank(){
+        StateRank = new Dictionary<ActorStateType, int>();
+        StateRank.Add(ActorStateType.Intro, 0);
+        StateRank.Add(ActorStateType.Attack, 1);
+        StateRank.Add(ActorStateType.Idle, 3);
+        StateRank.Add(ActorStateType.Move, 2);
+        StateRank.Add(ActorStateType.Outro, 0);
     }
 
     protected abstract void InitState();
@@ -45,24 +57,52 @@ public abstract class GameActor : MonoBehaviour
 		}
 	}
 
-    public abstract void ExecuteState(ActorState state, float deltaTime);
+    public void ExecuteState(ActorState state, float deltaTime){
+        ActorState nextState = GetNextState();
+        if(nextState!=null && StateRank[nextState.GetActorType()]<StateRank[CurrentState.GetActorType()]){
+            TurnNextState();
+        }else{
+            ExecuteState0(state, deltaTime);
+        }
+    }
+
+    protected abstract void ExecuteState0(ActorState state, float deltaTime);
+
+    public void EnterState(ActorStateType state){
+        EnterState(AllStatus[state]);
+    }
     public abstract void EnterState(ActorState state);
     public void TurnNextState(){
-        ActorState nextState = null;
-        foreach(ActorState state in StatesTurns[CurrentState.GetActorType()]){
-            if(state.CanEnter(this)){
-                nextState = state;
-                break;
-            }
-        }
+        ActorState nextState = GetNextState();
         if(nextState!=null){
             TurnState(nextState);
         }
     }
+
+    public ActorState GetNextState(){
+        ActorState nextState = null;
+        if(!StatusTurns.ContainsKey(CurrentState.GetActorType())){
+            return nextState;
+        }
+        foreach(ActorStateType state in StatusTurns[CurrentState.GetActorType()]){
+            ActorState actorState = AllStatus[state];
+            if(actorState.CanEnter(this)){
+                nextState = actorState;
+                break;
+            }
+        }
+        return nextState;
+    }
+
     public void TurnState(ActorState state){
+        Debug.Log(DebugName()+" turn to "+state.GetActorType()+".");
         CurrentState.Exit(this);
         CurrentState = state;
         CurrentState.Enter(this);
+    }
+
+    public void TurnState(ActorStateType stateType){
+        TurnState(AllStatus[stateType]);
     }
 
 	public void Recycle () {
@@ -95,10 +135,13 @@ public abstract class GameActor : MonoBehaviour
     }
     protected virtual void OnDisSelected0(){}
 	public bool GameUpdate(){
+        if(NeedRemoveFromUpdate){
+            return false;
+        }
         CurrentState.Execute(this, Time.deltaTime);
         bool alive = Update0();
         if(!alive && CurrentState.GetActorType()!=ActorStateType.Outro){
-            TurnState(new OutroState());
+            TurnState(ActorStateType.Outro);
         }
         return alive&&!NeedRemoveFromUpdate;
     }
@@ -109,4 +152,6 @@ public abstract class GameActor : MonoBehaviour
     public virtual int ActorTeamId(){
         return 0;
     }
+
+    protected abstract string DebugName();
 }

@@ -20,7 +20,7 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 		return towerConfig.Interval;
     }
 
-    public override void ExecuteState(ActorState state, float deltaTime)
+    protected override void ExecuteState0(ActorState state, float deltaTime)
     {
 		state.ExecuteTower(this, deltaTime);
     }
@@ -31,10 +31,16 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 
     protected override void InitState()
     {
-		StatesTurns.Add(ActorStateType.Idle, new List<ActorState>());
-		StatesTurns[ActorStateType.Idle].Add(new AttackState());
-		StatesTurns.Add(ActorStateType.Attack, new List<ActorState>());
-		StatesTurns[ActorStateType.Attack].Add(new IdleState());
+        AllStatus.Add(ActorStateType.Attack, new AttackState());
+        AllStatus.Add(ActorStateType.Idle, new IdleState());
+        AllStatus.Add(ActorStateType.Outro, new OutroState());
+
+		CurrentState = new IdleState();
+
+		StatusTurns.Add(ActorStateType.Idle, new List<ActorStateType>());
+		StatusTurns[ActorStateType.Idle].Add(ActorStateType.Attack);
+		StatusTurns.Add(ActorStateType.Attack, new List<ActorStateType>());
+		StatusTurns[ActorStateType.Attack].Add(ActorStateType.Idle);
     }
 	protected override void Init0(object[] payloads){
 		towerConfig = DataManager.GetData<TowerConfigEntry>(typeof(TowerConfig), Id);
@@ -49,7 +55,7 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
 		Direction = Direction.North;
 		ChangeSkill();
 		ChangeShowInRange(true);
-		Hp = 10;
+		Hp = towerConfig.Hp;
 	}
 	protected virtual int blockNum(){
 		return 0;
@@ -89,4 +95,9 @@ public abstract class Tower : PositiveActor, TargetAble, BlockerActor {
     public int TeamId(){
 		return 1;
 	}
+
+    protected override string DebugName()
+    {
+		return "[Tower "+identity+"]";
+    }
 }

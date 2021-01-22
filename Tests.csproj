@@ -36,7 +36,8 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\Test\Tests\Test1.cs" />
+     <Compile Include="Assets\Editor\Tests\NewTestScript.cs" />
+     <Compile Include="Assets\Editor\Tests\Test123.cs" />
     <Reference Include="UnityEngine">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.3f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
@@ -225,12 +226,6 @@
     </Reference>
     <Reference Include="UnityEditor">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.3f1c1/Editor/Data/Managed/UnityEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Graphs">
-        <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.3f1c1/Editor/Data/Managed/UnityEditor.Graphs.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.WindowsStandalone.Extensions">
-        <HintPath>C:/Program Files/Unity/Hub/Editor/2020.1.3f1c1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
         <HintPath>C:/workspace/TD/tower-defense/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
@@ -583,9 +578,6 @@
     <Reference Include="UnityEngine.TestRunner">
         <HintPath>C:/workspace/TD/tower-defense/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.TestRunner">
-        <HintPath>C:/workspace/TD/tower-defense/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor.UI">
         <HintPath>C:/workspace/TD/tower-defense/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
@@ -594,6 +586,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Codes.csproj">
+      <Project>{2571e689-62bc-d1b6-3a0f-60161a2b5844}</Project>
+      <Name>Codes</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

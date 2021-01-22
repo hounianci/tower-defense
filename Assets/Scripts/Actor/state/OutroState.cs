@@ -14,9 +14,13 @@ public class OutroState : ActorState
     }
     public override void ExecuteTower(GameActor actor, float deltaTime){
         Tower tower = (Tower) actor;
-        foreach(Enemy enemy in tower.BlockingEnemy){
-            enemy.BlockingTower = null;
+        if(tower.BlockingEnemy!=null){
+            foreach(Enemy enemy in tower.BlockingEnemy){
+                enemy.BlockingTower = null;
+            }   
         }
+        tower.Recycle();
+        tower.NeedRemoveFromUpdate = true;
     }
 
     public override void EnterEnemy(GameActor actor)

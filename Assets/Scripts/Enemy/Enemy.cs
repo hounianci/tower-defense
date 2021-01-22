@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class Enemy : PositiveActor, TargetAble, BlockerActor {
 
@@ -52,23 +53,33 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
 		SkillQueue[0] = skill; 
 		ChangeSkill();
 		Animator.Configure(model.GetChild(0).gameObject.AddComponent<Animator>(),animationConfig);
-		Debug.Log(Animator.flag);
 	} 
 
     protected override void InitState()
     {
+        AllStatus.Add(ActorStateType.Attack, new AttackState());
+        AllStatus.Add(ActorStateType.Idle, new IdleState());
+        AllStatus.Add(ActorStateType.Intro, new IntroState());
+        AllStatus.Add(ActorStateType.Move, new MoveState());
+        AllStatus.Add(ActorStateType.Outro, new OutroState());
+
 		CurrentState = new IntroState();
         CurrentState.Enter(this);
-		StatesTurns.Add(ActorStateType.Intro, new List<ActorState>());
-		StatesTurns[ActorStateType.Intro].Add(new MoveState());
+		StatusTurns.Add(ActorStateType.Intro, new List<ActorStateType>());
+		StatusTurns[ActorStateType.Intro].Add(ActorStateType.Idle);
 
-		StatesTurns.Add(ActorStateType.Idle, new List<ActorState>());
-		StatesTurns[ActorStateType.Idle].Add(new AttackState());
-		StatesTurns[ActorStateType.Idle].Add(new MoveState());
+		StatusTurns.Add(ActorStateType.Idle, new List<ActorStateType>());
+		StatusTurns[ActorStateType.Idle].Add(ActorStateType.Attack);
+		StatusTurns[ActorStateType.Idle].Add(ActorStateType.Move);
 
-		StatesTurns.Add(ActorStateType.Attack, new List<ActorState>());
-		StatesTurns[ActorStateType.Attack].Add(new IdleState());
-		StatesTurns[ActorStateType.Attack].Add(new MoveState());
+		StatusTurns.Add(ActorStateType.Attack, new List<ActorStateType>());
+		StatusTurns[ActorStateType.Attack].Add(ActorStateType.Move);
+		StatusTurns[ActorStateType.Attack].Add(ActorStateType.Idle);
+
+		StatusTurns.Add(ActorStateType.Move, new List<ActorStateType>());
+		StatusTurns[ActorStateType.Move].Add(ActorStateType.Attack);
+		StatusTurns[ActorStateType.Move].Add(ActorStateType.Attack);
+
     }
 	public int ApplyDamage(float damage){
         Hp -= (int)damage;
@@ -76,7 +87,7 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
 	}
 
 	protected override int GetInterval(){
-		return enemyConfig.Interval;
+		return enemyConfig.AttackInterval;
 	} 
 
 	public void InitPath(int pathId){
@@ -95,7 +106,7 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
     {
 		return TeamId();
     }
-    public override void ExecuteState(ActorState state, float deltaTime)
+    protected override void ExecuteState0(ActorState state, float deltaTime)
     {
 		state.ExecuteEnemy(this, deltaTime);
     }
@@ -239,4 +250,9 @@ public class Enemy : PositiveActor, TargetAble, BlockerActor {
 	public bool IsBlockByMe(GameActor actor){
 		return actor==BlockingTower;
 	}
+
+    protected override string DebugName()
+    {
+		return "[Enemy "+identity+"]";
+    }
 }
